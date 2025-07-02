@@ -103,7 +103,7 @@ export default function OTPVerification() {
               ref={(ref) => inputRefs.current[index] = ref!}
               style={[
                 styles.otpInput,
-                { borderColor: digit ? '#ff6b6b' : 'rgba(255, 255, 255, 0.3)' }
+                { borderColor: digit ? '#3A7CA5' : 'rgba(255, 255, 255, 0.3)' }
               ]}
               value={digit}
               onChangeText={(value) => handleOTPChange(value, index)}

@@ -1,132 +1,45 @@
-import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { User, Phone, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react-native';
+import { Mail, Apple } from 'lucide-react-native';
+import { AntDesign } from '@expo/vector-icons';
 
 export default function Register() {
-  const [formData, setFormData] = useState({
-    fullName: '',
-    phoneNumber: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-
-  const handleRegister = async () => {
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      router.replace('/(tabs)');
-    }, 1500);
-  };
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Header with logo */}
+        <View style={styles.header}>
+          <Image source={require('../../assets/images/logo.png')} style={styles.logo} />
+        </View>
         <View style={styles.innerContent}>
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Fill in your details to get started</Text>
-
-          {/* Form */}
-          <View style={styles.formContainer}>
-            <View style={styles.inputContainer}>
-              <User size={20} color="#3A7CA5" style={styles.inputIcon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Full Name"
-                placeholderTextColor="#A0A0A0"
-                value={formData.fullName}
-                onChangeText={(text) => setFormData({...formData, fullName: text})}
-                autoCapitalize="words"
-              />
-            </View>
-
-            <View style={styles.inputContainer}>
-              <Phone size={20} color="#3A7CA5" style={styles.inputIcon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Phone Number"
-                placeholderTextColor="#A0A0A0"
-                value={formData.phoneNumber}
-                onChangeText={(text) => setFormData({...formData, phoneNumber: text})}
-                keyboardType="numeric"
-              />
-            </View>
-
-            <View style={styles.inputContainer}>
-              <Mail size={20} color="#3A7CA5" style={styles.inputIcon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Email Address"
-                placeholderTextColor="#A0A0A0"
-                value={formData.email}
-                onChangeText={(text) => setFormData({...formData, email: text})}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
-
-            <View style={styles.inputContainer}>
-              <Lock size={20} color="#3A7CA5" style={styles.inputIcon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Password"
-                placeholderTextColor="#A0A0A0"
-                value={formData.password}
-                onChangeText={(text) => setFormData({...formData, password: text})}
-                secureTextEntry={!showPassword}
-              />
-              <TouchableOpacity
-                style={styles.eyeIcon}
-                onPress={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <EyeOff size={20} color="#A0A0A0" />
-                ) : (
-                  <Eye size={20} color="#A0A0A0" />
-                )}
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.inputContainer}>
-              <Lock size={20} color="#3A7CA5" style={styles.inputIcon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Confirm Password"
-                placeholderTextColor="#A0A0A0"
-                value={formData.confirmPassword}
-                onChangeText={(text) => setFormData({...formData, confirmPassword: text})}
-                secureTextEntry={!showConfirmPassword}
-              />
-              <TouchableOpacity
-                style={styles.eyeIcon}
-                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-              >
-                {showConfirmPassword ? (
-                  <EyeOff size={20} color="#A0A0A0" />
-                ) : (
-                  <Eye size={20} color="#A0A0A0" />
-                )}
-              </TouchableOpacity>
-            </View>
-
-            <TouchableOpacity
-              style={styles.registerButton}
-              onPress={handleRegister}
-              disabled={isLoading}
-            >
-              <Text style={styles.registerText}>
-                {isLoading ? 'Creating Account...' : 'Create Account'}
-              </Text>
-              {!isLoading && <ArrowRight size={20} color="#fff" style={{ marginLeft: 8 }} />}
+          {/* Social/Alternative Login Buttons */}
+          <View style={styles.socialContainer}>
+            <TouchableOpacity style={styles.socialButton}>
+              <Mail size={20} color="#3A7CA5" style={styles.socialIcon} />
+              <Text style={styles.socialText}>Continue with Email</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.socialButton}>
+              <AntDesign name="google" size={20} color="#EA4335" style={styles.socialIcon} />
+              <Text style={styles.socialText}>Continue with Google</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.socialButton}>
+              <Apple size={20} color="#000" style={styles.socialIcon} />
+              <Text style={styles.socialText}>Continue with Apple</Text>
             </TouchableOpacity>
           </View>
-
+          {/* Create Account Manually Button */}
+          <TouchableOpacity style={styles.manualButton} onPress={() => router.push('/auth/register-details')}>
+            <Text style={styles.manualButtonText}>Create Account Manually</Text>
+          </TouchableOpacity>
+          {/* Divider */}
+          <View style={styles.dividerRow}>
+            <View style={styles.divider} />
+            <Text style={styles.dividerText}>or</Text>
+            <View style={styles.divider} />
+          </View>
+          {/* Login navigation */}
           <View style={styles.loginRow}>
             <Text style={styles.loginText}>Already have an account? </Text>
             <TouchableOpacity onPress={() => router.push('/auth/login')}>
@@ -134,9 +47,8 @@ export default function Register() {
             </TouchableOpacity>
           </View>
         </View>
-
         <Text style={styles.termsText}>
-          By continuing, you accept the Terms Of Use and <Text style={styles.termsLink}>Privacy Policy</Text>.
+          By continuing, you accept the <Text style={styles.termsLink}>Terms Of Use</Text> and <Text style={styles.termsLink}>Privacy Policy</Text>.
         </Text>
       </ScrollView>
     </View>
@@ -146,93 +58,91 @@ export default function Register() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F5F8FC', // subtle background
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: 24,
-    paddingTop: 60,
+    paddingTop: 40,
     paddingBottom: 24,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  logo: {
+    width: 120,
+    height: 80,
+    resizeMode: 'contain',
+    // marginBottom: 8,
   },
   innerContent: {
     alignItems: 'center',
     width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 2,
+    marginBottom: 18,
   },
-  title: {
-    fontSize: 28,
-    fontFamily: 'Inter-Bold',
-    color: '#222',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 24,
-    fontFamily: 'Inter-Regular',
-  },
-  formContainer: {
+  socialContainer: {
     width: '100%',
     marginBottom: 24,
   },
-  inputContainer: {
+  socialButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#F5F7FA',
     borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginBottom: 14,
     borderWidth: 1,
     borderColor: '#E6ECF2',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    marginBottom: 16,
-    shadowColor: '#000',
+    shadowColor: '#3A7CA5',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
+    shadowOpacity: 0.07,
+    shadowRadius: 6,
     elevation: 1,
   },
-  inputIcon: {
+  socialIcon: {
     marginRight: 12,
   },
-  input: {
-    flex: 1,
+  socialText: {
     fontSize: 16,
-    fontFamily: 'Inter-Medium',
     color: '#222',
-    backgroundColor: 'transparent',
-    borderWidth: 0,
+    fontFamily: 'Inter-Medium',
   },
-  eyeIcon: {
-    padding: 4,
-  },
-  registerButton: {
+  dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#3A7CA5',
-    borderRadius: 12,
-    paddingVertical: 16,
-    marginTop: 8,
+    width: '100%',
     marginBottom: 18,
-    shadowColor: '#3A7CA5',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 2,
   },
-  registerText: {
-    fontSize: 17,
-    fontFamily: 'Inter-Bold',
-    color: '#fff',
+  divider: {
+    flex: 1,
+    height: 1.5,
+    backgroundColor: '#E6ECF2',
+    borderRadius: 1,
+  },
+  dividerText: {
+    marginHorizontal: 12,
+    color: '#A0A0A0',
+    fontSize: 15,
+    fontFamily: 'Inter-Regular',
+    letterSpacing: 1,
   },
   loginRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginTop: 8,
+    marginBottom: 4,
   },
   loginText: {
     fontSize: 15,
@@ -243,17 +153,39 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#3A7CA5',
     fontFamily: 'Inter-Bold',
+    textDecorationLine: 'underline',
   },
   termsText: {
     fontSize: 12,
     color: '#A0A0A0',
     textAlign: 'center',
-    marginTop: 16,
+    marginTop: 12,
     lineHeight: 16,
     fontFamily: 'Inter-Regular',
+    paddingHorizontal: 12,
   },
   termsLink: {
     color: '#3A7CA5',
     textDecorationLine: 'underline',
+  },
+  manualButton: {
+    width: '100%',
+    backgroundColor: '#fff',
+    borderColor: '#3A7CA5',
+    borderWidth: 1.5,
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginBottom: 20,
+    shadowColor: '#3A7CA5',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07,
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  manualButtonText: {
+    color: '#3A7CA5',
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
   },
 });

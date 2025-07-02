@@ -143,8 +143,8 @@ export default function Profile() {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.logoutButton}>
-          <LogOut size={20} color="#ef4444" />
+        <TouchableOpacity style={styles.logoutButton} onPress={() => router.replace('/auth/login')}>
+          <LogOut size={20} color="#F4A261" />
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
       </View>
@@ -417,16 +417,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F4A261',
+    // backgroundColor: '#F4A261',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#ef4444',
+    borderColor: '#F4A261',
   },
   logoutText: {
     fontSize: 16,
     fontFamily: 'Inter-SemiBold',
-    color: '#1e293b',
+    color: '#F4A261',
     marginLeft: 8,
   },
 });

@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { User, Phone, Mail, Lock, Eye, EyeOff, ArrowRight, ChevronLeft } from 'lucide-react-native';
+
+const { width } = Dimensions.get('window');
 
 export default function RegisterDetails() {
   const [formData, setFormData] = useState({
@@ -14,9 +16,14 @@ export default function RegisterDetails() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const router = useRouter();
 
   const handleRegister = async () => {
+    if (!agreed) {
+      alert('You must agree to the Terms of Use and Privacy Policy to continue.');
+      return;
+    }
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
@@ -27,15 +34,18 @@ export default function RegisterDetails() {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <ChevronLeft size={24} color="#3A7CA5" />
-        </TouchableOpacity>
         <View style={styles.innerContent}>
+          {/* Logo */}
+          <Image
+            source={require('../../assets/images/logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+          {/* Title and Subtitle */}
           <Text style={styles.title}>Create Account</Text>
           <Text style={styles.subtitle}>Fill in your details to get started</Text>
-
-          {/* Form */}
-          <View style={styles.formContainer}>
+          {/* Form Card */}
+          <View style={styles.formCard}>
             <View style={styles.inputContainer}>
               <User size={20} color="#3A7CA5" style={styles.inputIcon} />
               <TextInput
@@ -112,27 +122,40 @@ export default function RegisterDetails() {
                 )}
               </TouchableOpacity>
             </View>
+            {/* Terms and Privacy Checkbox */}
+            <TouchableOpacity style={styles.checkboxRow} onPress={() => setAgreed(!agreed)}>
+              <View style={[styles.checkbox, agreed && styles.checkboxChecked]}>
+                {agreed && <Text style={styles.checkmark}>✓</Text>}
+              </View>
+              <Text style={styles.checkboxLabel}>
+                I agree to the <Text style={styles.link}>Terms of Use</Text> and <Text style={styles.link}>Privacy Policy</Text>
+              </Text>
+            </TouchableOpacity>
             <TouchableOpacity
-              style={styles.registerButton}
+              style={[styles.registerButton, !agreed && { opacity: 0.6 }]}
               onPress={handleRegister}
-              disabled={isLoading}
+              disabled={isLoading || !agreed}
             >
               <Text style={styles.registerText}>{isLoading ? 'Creating Account...' : 'Create Account'}</Text>
               {!isLoading && <ArrowRight size={20} color="#fff" style={{ marginLeft: 8 }} />}
             </TouchableOpacity>
           </View>
-
-          <View style={styles.loginRow}>
-            <Text style={styles.loginText}>Already have an account? </Text>
+          {/* Footer */}
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Already have an account? </Text>
             <TouchableOpacity onPress={() => router.push('/auth/login')}>
-              <Text style={styles.loginLink}>Log In</Text>
+              <Text style={styles.signUpText}>Log In</Text>
             </TouchableOpacity>
           </View>
+          {/* <Text style={styles.termsText}>
+            By continuing, you accept the <Text style={styles.termsLink}>Terms Of Use</Text> and <Text style={styles.termsLink}>Privacy Policy</Text>.
+          </Text> */}
         </View>
-        <Text style={styles.termsText}>
-          By continuing, you accept the Terms Of Use and <Text style={styles.termsLink}>Privacy Policy</Text>.
-        </Text>
       </ScrollView>
+      {/* Back button floating */}
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <ChevronLeft size={26} color="#3A7CA5" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -140,56 +163,63 @@ export default function RegisterDetails() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#3A7CA5',
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: 24,
-    paddingTop: 60,
+    paddingHorizontal: 8,
+    paddingTop: 40,
     paddingBottom: 24,
-  },
-  backButton: {
-    position: 'absolute',
-    top: 24,
-    left: 0,
-    zIndex: 2,
-    padding: 8,
   },
   innerContent: {
     alignItems: 'center',
     width: '100%',
+  },
+  logoImage: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
     marginTop: 32,
+    marginBottom: 16,
+    backgroundColor: '#F4F8FB',
   },
   title: {
-    fontSize: 24,
+    fontSize: 30,
     fontFamily: 'Inter-Bold',
-    color: '#222',
+    color: '#fff',
     textAlign: 'center',
-    marginBottom: 8,
-    marginTop: 8,
+    marginBottom: 4,
   },
   subtitle: {
-    fontSize: 15,
-    color: '#444',
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.9)',
     textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 22,
+    lineHeight: 24,
+    fontFamily: 'Inter-Regular',
   },
-  formContainer: {
+  formCard: {
     width: '100%',
-    marginBottom: 24,
+    // backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 24,
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 4 },
+    // shadowOpacity: 0.06,
+    // shadowRadius: 12,
+    // elevation: 2,
+    // marginBottom: 18,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: '#E6ECF2',
     paddingHorizontal: 16,
-    paddingVertical: 14,
-    marginBottom: 16,
+    paddingVertical: 4,
+    marginBottom: 18,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
@@ -214,46 +244,112 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#3A7CA5',
-    borderRadius: 12,
-    paddingVertical: 16,
+    backgroundColor: '#F4A261',
+    borderRadius: 14,
+    paddingVertical: 15,
     marginTop: 8,
     marginBottom: 18,
-    shadowColor: '#3A7CA5',
+    shadowColor: '#F4A261',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
+    shadowOpacity: 0.13,
     shadowRadius: 8,
     elevation: 2,
   },
   registerText: {
-    fontSize: 17,
+    fontSize: 18,
     fontFamily: 'Inter-Bold',
     color: '#fff',
+    letterSpacing: 0.5,
   },
-  loginRow: {
+  footer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
+    // marginTop: 8,
   },
-  loginText: {
-    fontSize: 14,
-    color: '#444',
+  footerText: {
+    fontSize: 15,
+    color: '#fff',
+    fontFamily: 'Inter-Regular',
   },
-  loginLink: {
-    fontSize: 14,
-    color: '#3A7CA5',
+  signUpText: {
+    fontSize: 15,
+    color: '#F4A261',
     fontFamily: 'Inter-Bold',
+    textDecorationLine: 'underline',
   },
   termsText: {
     fontSize: 12,
-    color: '#888',
+    color: 'rgba(255,255,255,0.85)',
     textAlign: 'center',
-    marginTop: 16,
+    marginTop: 12,
     lineHeight: 16,
+    fontFamily: 'Inter-Regular',
+    paddingHorizontal: 12,
   },
   termsLink: {
-    color: '#3A7CA5',
+    color: '#F4A261',
     textDecorationLine: 'underline',
+  },
+  backButton: {
+    position: 'absolute',
+    top: 36,
+    left: 16,
+    zIndex: 10,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 6,
+    shadowColor: '#3A7CA5',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  checkboxRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    marginTop: 8,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#3A7CA5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+    backgroundColor: '#fff',
+  },
+  checkboxChecked: {
+    // backgroundColor: '#3A7CA5',
+    // borderColor: '#3A7CA5',
+  },
+  checkboxInner: {
+    width: 12,
+    height: 12,
+    borderRadius: 3,
+    backgroundColor: '#fff',
+  },
+  checkmark: {
+    color: '#F4A261',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  checkboxLabel: {
+    fontSize: 14,
+    color: '#fff',
+    fontFamily: 'Inter-Regular',
+    flex: 1,
+    flexWrap: 'wrap',
+  },
+  link: {
+    color: '#F4A261',
+    textDecorationLine: 'underline',
+    fontFamily: 'Inter-Bold',
   },
 }); 

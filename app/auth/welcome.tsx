@@ -28,9 +28,9 @@ export default function Welcome() {
 
   const handleNext = () => {
     if (current < slides.length - 1) setCurrent(current + 1);
-    else router.push('/auth/login');
+    else router.push('/auth/register');
   };
-  const handleSkip = () => router.push('/auth/login');
+  const handleSkip = () => router.push('/auth/register');
 
   return (
     <View style={styles.container}>

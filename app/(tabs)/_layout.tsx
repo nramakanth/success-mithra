@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
-import { Chrome as Home, BookOpen, FileText, User } from 'lucide-react-native';
+import { Home, BookOpen, FileText, User, BarChart3 } from 'lucide-react-native';
 
 export default function TabLayout() {
   return (
@@ -39,6 +39,15 @@ export default function TabLayout() {
           title: 'Practice',
           tabBarIcon: ({ size, color }) => (
             <BookOpen size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="insights"
+        options={{
+          title: 'Insights',
+          tabBarIcon: ({ size, color }) => (
+            <BarChart3 size={size} color={color} />
           ),
         }}
       />

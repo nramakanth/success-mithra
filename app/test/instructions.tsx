@@ -2,10 +2,44 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { ChevronLeft, Clock, FileText, AlertCircle, CheckCircle, Play } from 'lucide-react-native';
+import React, { useState } from 'react';
+
+// Utility to deeply flatten and filter only strings
+function deepFlattenStrings(arr: any): string[] {
+  if (!Array.isArray(arr)) return [];
+  return arr.flatMap((val) => {
+    if (typeof val === 'string') return [val];
+    if (Array.isArray(val)) return deepFlattenStrings(val);
+    if (val && typeof val.name === 'string') return [val.name];
+    return [];
+  });
+}
 
 export default function TestInstructions() {
   const router = useRouter();
-  const { testType = 'Mock Test', duration = '120', questions = '90' } = useLocalSearchParams();
+  const { testType = 'Mock Test', duration = '120', questions = '10', subject, subjects, lessons } = useLocalSearchParams();
+  const [agreed, setAgreed] = useState(false);
+  let subjectList: string[] = [];
+  let lessonList: string[] = [];
+  try {
+    subjectList = subjects ? JSON.parse(subjects as string) : [];
+  } catch {
+    subjectList = [];
+  }
+  try {
+    if (lessons) {
+      if (typeof lessons === 'string') {
+        const parsed = JSON.parse(lessons);
+        lessonList = deepFlattenStrings(parsed) as string[];
+      } else if (Array.isArray(lessons)) {
+        lessonList = deepFlattenStrings(lessons) as string[];
+      }
+    }
+    lessonList = ([] as string[]).concat(...lessonList).filter((l): l is string => typeof l === 'string');
+  } catch {
+    lessonList = [];
+  }
+  const isMulti = subjectList.length > 1;
 
   const instructions = [
     {
@@ -35,15 +69,20 @@ export default function TestInstructions() {
   ];
 
   const handleStartTest = () => {
-    router.push('/test/exam');
+    router.push({
+      pathname: '/test/exam',
+      params: {
+        subject: subject || (subjectList.length ? subjectList[0] : undefined),
+        lessons: JSON.stringify(lessonList),
+        duration: 90,
+        questions: 10,
+      },
+    });
   };
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#667eea', '#764ba2']}
-        style={styles.header}
-      >
+      <View style={[styles.header, { backgroundColor: '#3A7CA5' }]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
@@ -52,10 +91,28 @@ export default function TestInstructions() {
         </TouchableOpacity>
         
         <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>Test Instructions</Text>
-          <Text style={styles.headerSubtitle}>{testType}</Text>
+          <Text style={styles.headerTitle}>Practice Instructions</Text>
+          {isMulti ? (
+            <Text style={styles.headerSubtitle}>You will take: {subjectList.join(', ')}</Text>
+          ) : (
+            <Text style={styles.headerSubtitle}>{testType}</Text>
+          )}
         </View>
-      </LinearGradient>
+      </View>
+
+      {/* Show selected lessons if present */}
+      {lessonList.length > 0 && (
+        <View style={styles.selectedLessonsSection}>
+          <Text style={styles.selectedLessonsTitle}>Selected Lessons</Text>
+          <View style={styles.selectedLessonsList}>
+            {lessonList.map((lesson, idx) => (
+              <View key={idx} style={styles.selectedLessonCard}>
+                <Text style={styles.selectedLessonText}>{(lesson as string).replace(/^[a-z]+:/i, '').replace(/_/g, ' ')}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      )}
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.testInfo}>
@@ -133,17 +190,22 @@ export default function TestInstructions() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.startButton}
-          onPress={handleStartTest}
-        >
-          <LinearGradient
-            colors={['#10b981', '#059669']}
-            style={styles.startGradient}
+        <View style={styles.checkboxRow}>
+          <TouchableOpacity
+            style={[styles.checkbox, agreed && styles.checkboxChecked]}
+            onPress={() => setAgreed(!agreed)}
+            activeOpacity={0.8}
           >
-            <Play size={20} color="#ffffff" />
-            <Text style={styles.startButtonText}>Start Test</Text>
-          </LinearGradient>
+            {agreed && <CheckCircle size={18} color="#3A7CA5" />}
+          </TouchableOpacity>
+          <Text style={styles.checkboxLabel}>I have read and agree to the instructions</Text>
+        </View>
+        <TouchableOpacity
+          style={[styles.startButton, { backgroundColor: agreed ? '#F4A261' : '#f1f5f9' }]}
+          onPress={handleStartTest}
+          disabled={!agreed}
+        >
+          <Text style={[styles.startButtonText, { color: agreed ? '#fff' : '#aaa' }]}>Start Test</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -159,11 +221,12 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 24,
     paddingHorizontal: 24,
+    flexDirection: 'row',
   },
   backButton: {
     alignSelf: 'flex-start',
     padding: 8,
-    marginBottom: 16,
+    // marginBottom: 16,
   },
   headerContent: {
     alignItems: 'center',
@@ -181,7 +244,8 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
   },
   testInfo: {
     marginBottom: 32,
@@ -310,30 +374,79 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: 24,
-    backgroundColor: '#ffffff',
-    borderTopWidth: 1,
-    borderTopColor: '#e2e8f0',
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   startButton: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    shadowColor: '#10b981',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-  startGradient: {
-    flexDirection: 'row',
+    backgroundColor: '#F4A261',
+    borderRadius: 12,
+    paddingVertical: 14,
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 18,
-    paddingHorizontal: 32,
+    marginTop: 12,
   },
   startButtonText: {
+    color: '#fff',
+    fontFamily: 'Inter-Bold',
+    fontSize: 16,
+  },
+  checkboxRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#3A7CA5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+    backgroundColor: '#fff',
+  },
+  checkboxChecked: {
+    backgroundColor: '#e0f7ef',
+    borderColor: '#3A7CA5',
+  },
+  checkboxLabel: {
+    fontSize: 15,
+    color: '#1e293b',
+    fontFamily: 'Inter-Regular',
+  },
+  selectedLessonsSection: {
+    marginTop: 16,
+    marginHorizontal: 24,
+    marginBottom: 8,
+  },
+  selectedLessonsTitle: {
     fontSize: 18,
     fontFamily: 'Inter-Bold',
-    color: '#ffffff',
-    marginLeft: 8,
+    color: '#3A7CA5',
+    marginBottom: 8,
+  },
+  selectedLessonsList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  selectedLessonCard: {
+    backgroundColor: '#F4A261',
+    borderRadius: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  selectedLessonText: {
+    color: '#fff',
+    fontFamily: 'Inter-Medium',
+    fontSize: 15,
   },
 });

@@ -10,28 +10,31 @@ export default function Practice() {
 
   const practiceTypes = [
     {
-      title: 'Chapter Practice',
-      description: '10 questions per chapter',
+      title: 'Physics Test',
+      description: 'Practice Physics questions',
       icon: BookOpen,
-      color: ['#667eea', '#764ba2'],
-      questions: '10 Questions',
-      time: '20 mins',
+      color: ['#3A7CA5', '#1e5a85'],
+      questions: '10 questions per lesson',
+      time: '90 min',
+      subject: 'Physics',
     },
     {
-      title: 'Subject Practice',
-      description: '30 questions per subject',
-      icon: Target,
-      color: ['#ff6b6b', '#ffa726'],
-      questions: '30 Questions',
-      time: '60 mins',
-    },
-    {
-      title: 'Full Practice',
-      description: '90 questions - Mixed subjects',
+      title: 'Mathematics Test',
+      description: 'Practice Mathematics questions',
       icon: Zap,
       color: ['#10b981', '#059669'],
-      questions: '90 Questions',
-      time: '180 mins',
+      questions: '10 questions per lesson',
+      time: '90 min',
+      subject: 'Mathematics',
+    },
+    {
+      title: 'Chemistry Test',
+      description: 'Practice Chemistry questions',
+      icon: Target,
+      color: ['#F4A261', '#e76f51'],
+      questions: '10 questions per lesson',
+      time: '90 min',
+      subject: 'Chemistry',
     },
   ];
 
@@ -55,33 +58,51 @@ export default function Practice() {
         <Text style={styles.subtitle}>Choose your practice mode</Text>
       </View>
 
+      
+
       <View style={styles.content}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Practice Modes</Text>
           {practiceTypes.map((type, index) => (
-            <TouchableOpacity key={index} style={styles.practiceCard}>
-              <View style={[styles.practiceGradient, { backgroundColor: '#F4A261' }]}>
+            <TouchableOpacity
+              key={index}
+              style={styles.practiceCard}
+              activeOpacity={0.93}
+              onPress={() => {
+                router.push(`/practice/lesson-select?subject=${type.subject}`);
+              }}
+            >
+              <LinearGradient
+                colors={type.color as [string, string]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.practiceGradient}
+              >
                 <View style={styles.practiceContent}>
                   <View style={styles.practiceLeft}>
-                    <type.icon size={32} color="#1e293b" />
+                    <View style={[styles.practiceIconCircle, { backgroundColor: 'rgba(255,255,255,0.95)' }]}> 
+                      <type.icon size={22} color={type.color[0]} />
+                    </View>
                     <View style={styles.practiceInfo}>
-                      <Text style={[styles.practiceTitle, { color: '#1e293b' }]}>{type.title}</Text>
-                      <Text style={[styles.practiceDescription, { color: '#1e293b' }]}>{type.description}</Text>
+                      <Text style={styles.practiceTitle}>{type.title}</Text>
+                      <Text style={styles.practiceDescription}>{type.description}</Text>
                       <View style={styles.practiceDetails}>
                         <View style={styles.detailItem}>
-                          <Clock size={14} color="rgba(255,255,255,0.8)" />
+                          <Clock size={16} color="#fff" />
                           <Text style={styles.detailText}>{type.time}</Text>
                         </View>
                         <View style={styles.detailItem}>
-                          <BookOpen size={14} color="rgba(255,255,255,0.8)" />
+                          <BookOpen size={16} color="#fff" />
                           <Text style={styles.detailText}>{type.questions}</Text>
                         </View>
                       </View>
                     </View>
                   </View>
-                  <ChevronRight size={24} color="rgba(255,255,255,0.8)" />
+                  <View style={styles.chevronCircle}>
+                    <ChevronRight size={16} color={type.color[0]} />
+                  </View>
                 </View>
-              </View>
+              </LinearGradient>
             </TouchableOpacity>
           ))}
         </View>
@@ -174,12 +195,10 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontFamily: 'Inter-Bold',
     color: '#1e293b',
   },
   subtitle: {
     fontSize: 16,
-    fontFamily: 'Inter-Regular',
     color: '#64748b',
     marginTop: 8,
   },
@@ -197,22 +216,29 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontFamily: 'Inter-Bold',
+     
     color: '#1e293b',
     marginBottom: 16,
   },
   viewAll: {
     fontSize: 14,
-    fontFamily: 'Inter-Medium',
+     
     color: '#667eea',
   },
   practiceCard: {
-    marginBottom: 16,
+    marginBottom: 14,
     borderRadius: 16,
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
+    minHeight: 72,
+    borderWidth: 0,
   },
   practiceGradient: {
-    padding: 20,
+    padding: 16,
   },
   practiceContent: {
     flexDirection: 'row',
@@ -225,19 +251,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   practiceInfo: {
-    marginLeft: 16,
+    marginLeft: 10,
     flex: 1,
   },
   practiceTitle: {
-    fontSize: 18,
-    fontFamily: 'Inter-Bold',
-    color: '#ffffff',
+    fontSize: 16,
+     
+    color: '#fff',
+    marginBottom: 2,
   },
   practiceDescription: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    color: 'rgba(255, 255, 255, 0.8)',
-    marginTop: 4,
+    fontSize: 13,
+     
+    color: 'rgba(255,255,255,0.92)',
+    marginTop: 2,
+    marginBottom: 6,
   },
   practiceDetails: {
     flexDirection: 'row',
@@ -246,13 +274,13 @@ const styles = StyleSheet.create({
   detailItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: 10,
   },
   detailText: {
     fontSize: 12,
-    fontFamily: 'Inter-Regular',
-    color: 'rgba(255, 255, 255, 0.8)',
-    marginLeft: 4,
+    
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginLeft: 6,
   },
   subjectsGrid: {
     flexDirection: 'row',
@@ -277,7 +305,7 @@ const styles = StyleSheet.create({
   },
   subjectName: {
     fontSize: 14,
-    fontFamily: 'Inter-Bold',
+     
     color: '#ffffff',
   },
   subjectBody: {
@@ -288,7 +316,6 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: 12,
-    fontFamily: 'Inter-Regular',
     color: '#64748b',
     marginBottom: 8,
   },
@@ -304,7 +331,7 @@ const styles = StyleSheet.create({
   },
   completionText: {
     fontSize: 12,
-    fontFamily: 'Inter-Bold',
+     
     color: '#1e293b',
     textAlign: 'center',
   },
@@ -329,13 +356,12 @@ const styles = StyleSheet.create({
   },
   chapterSubject: {
     fontSize: 12,
-    fontFamily: 'Inter-Medium',
+     
     color: '#667eea',
     marginBottom: 4,
   },
   chapterName: {
     fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
     color: '#1e293b',
     marginBottom: 8,
   },
@@ -348,8 +374,35 @@ const styles = StyleSheet.create({
   },
   chapterQuestions: {
     fontSize: 14,
-    fontFamily: 'Inter-Bold',
+     
     color: '#10b981',
     marginBottom: 4,
+  },
+  practiceIconCircle: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.10,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  chevronCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.10,
+    shadowRadius: 4,
+    elevation: 2,
   },
 });

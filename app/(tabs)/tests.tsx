@@ -1,31 +1,41 @@
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { FileText, Clock, Users, Trophy, ChevronRight, Play, ChartBar as BarChart3 } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 
-export default function Tests() {
-  // const router = useRouter();
+const SUBJECTS = ['Maths', 'Chemistry', 'Physics'];
 
+export default function Tests() {
+  const router = useRouter();
+
+  // Mock Tests for each subject
   const mockTests = [
     {
-      title: 'JEE Main Mock Test #1',
-      duration: '180 mins',
-      questions: 90,
+      id: 'maths-mock-1',
+      title: 'Maths Mock Test #1',
+      subject: 'Maths',
+      duration: '90 mins',
+      questions: 30,
       attempted: false,
       difficulty: 'Medium',
       color: ['#667eea', '#764ba2'],
     },
     {
-      title: 'EAPCET Practice Test #1',
-      duration: '150 mins',
-      questions: 160,
+      id: 'chemistry-mock-1',
+      title: 'Chemistry Mock Test #1',
+      subject: 'Chemistry',
+      duration: '90 mins',
+      questions: 30,
       attempted: false,
-      difficulty: 'Hard',
+      difficulty: 'Medium',
       color: ['#ff6b6b', '#ffa726'],
     },
     {
-      title: 'Physics Full Test',
-      duration: '60 mins',
+      id: 'physics-mock-1',
+      title: 'Physics Mock Test #1',
+      subject: 'Physics',
+      duration: '90 mins',
       questions: 30,
       attempted: true,
       score: 24,
@@ -34,6 +44,53 @@ export default function Tests() {
     },
   ];
 
+  // Combined Test (All Subjects)
+  const combinedTest = {
+    id: 'combined-mock-1',
+    title: 'Combined Mock Test (All Subjects)',
+    subject: 'All',
+    duration: '180 mins',
+    questions: 90,
+    attempted: false,
+    difficulty: 'Hard',
+    color: ['#3A7CA5', '#F4A261'],
+  };
+
+  // Previous Years' Papers
+  const previousPapers = [
+    {
+      id: 'jee-2022',
+      title: 'JEE Main 2022',
+      subject: 'All',
+      duration: '180 mins',
+      questions: 90,
+      attempted: false,
+      year: 2022,
+      color: ['#3A7CA5', '#10b981'],
+    },
+    {
+      id: 'jee-2021',
+      title: 'JEE Main 2021',
+      subject: 'All',
+      duration: '180 mins',
+      questions: 90,
+      attempted: false,
+      year: 2021,
+      color: ['#3A7CA5', '#F4A261'],
+    },
+    {
+      id: 'jee-2020',
+      title: 'JEE Main 2020',
+      subject: 'All',
+      duration: '180 mins',
+      questions: 90,
+      attempted: false,
+      year: 2020,
+      color: ['#3A7CA5', '#ff6b6b'],
+    },
+  ];
+
+  // Test History (unchanged)
   const testHistory = [
     {
       title: 'JEE Main Mock Test #3',
@@ -65,6 +122,18 @@ export default function Tests() {
     { label: 'Study Hours', value: '124h', color: 'rgba(58, 124, 165, 0.3)' },
   ];
 
+  // Helper to navigate to instructions
+  const goToInstructions = (test: any) => {
+    router.push({
+      pathname: '/test/instructions',
+      params: {
+        subject: test.subject,
+        testType: test.year ? 'previous' : (test.subject === 'All' ? 'combined' : 'mock'),
+        testId: test.id,
+      },
+    });
+  };
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
@@ -85,10 +154,11 @@ export default function Tests() {
           </View>
         </View>
 
+        {/* Mock Tests by Subject */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Available Tests</Text>
+          <Text style={styles.sectionTitle}>Mock Tests by Subject</Text>
           {mockTests.map((test, index) => (
-            <TouchableOpacity key={index} style={styles.testCard}>
+            <TouchableOpacity key={index} style={styles.testCard} onPress={() => goToInstructions(test)}>
               <View style={styles.testContent}>
                 <View style={styles.testLeft}>
                   <FileText size={32} color="#ffffff" />
@@ -114,19 +184,86 @@ export default function Tests() {
                   </View>
                 </View>
                 <View style={styles.testRight}>
-                  {test.attempted ? (
-                    <View style={styles.retakeButton}>
-                      <Text style={styles.retakeText}>Retake</Text>
-                    </View>
-                  ) : (
-                    <Play size={24} color="rgba(255, 255, 255, 0.8)" />
-                  )}
+                  <View style={styles.retakeButton}>
+                    <Text style={styles.retakeText}>{test.attempted ? 'Retake' : 'Start'}</Text>
+                  </View>
                 </View>
               </View>
             </TouchableOpacity>
           ))}
         </View>
 
+        {/* Combined Test */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Combined Test (All Subjects)</Text>
+          <TouchableOpacity style={styles.testCard} onPress={() => goToInstructions(combinedTest)}>
+            <View style={styles.testContent}>
+              <View style={styles.testLeft}>
+                <FileText size={32} color="#ffffff" />
+                <View style={styles.testInfo}>
+                  <Text style={styles.testTitle}>{combinedTest.title}</Text>
+                  <View style={styles.testDetails}>
+                    <View style={styles.detailItem}>
+                      <Clock size={14} color="rgba(255, 255, 255, 0.8)" />
+                      <Text style={styles.detailText}>{combinedTest.duration}</Text>
+                    </View>
+                    <View style={styles.detailItem}>
+                      <FileText size={14} color="rgba(255, 255, 255, 0.8)" />
+                      <Text style={styles.detailText}>{combinedTest.questions} Questions</Text>
+                    </View>
+                    <View style={styles.detailItem}>
+                      <BarChart3 size={14} color="rgba(255, 255, 255, 0.8)" />
+                      <Text style={styles.detailText}>{combinedTest.difficulty}</Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+              <View style={styles.testRight}>
+                <View style={styles.retakeButton}>
+                  <Text style={styles.retakeText}>Start</Text>
+                </View>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* Previous Years' Papers */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Previous Years' Papers</Text>
+          {previousPapers.map((test, index) => (
+            <TouchableOpacity key={index} style={styles.testCard} onPress={() => goToInstructions(test)}>
+              <View style={styles.testContent}>
+                <View style={styles.testLeft}>
+                  <FileText size={32} color="#ffffff" />
+                  <View style={styles.testInfo}>
+                    <Text style={styles.testTitle}>{test.title}</Text>
+                    <View style={styles.testDetails}>
+                      <View style={styles.detailItem}>
+                        <Clock size={14} color="rgba(255, 255, 255, 0.8)" />
+                        <Text style={styles.detailText}>{test.duration}</Text>
+                      </View>
+                      <View style={styles.detailItem}>
+                        <FileText size={14} color="rgba(255, 255, 255, 0.8)" />
+                        <Text style={styles.detailText}>{test.questions} Questions</Text>
+                      </View>
+                      <View style={styles.detailItem}>
+                        <BarChart3 size={14} color="rgba(255, 255, 255, 0.8)" />
+                        <Text style={styles.detailText}>Previous Year</Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+                <View style={styles.testRight}>
+                  <View style={styles.retakeButton}>
+                    <Text style={styles.retakeText}>Start</Text>
+                  </View>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Test History (unchanged) */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Test History</Text>
@@ -134,7 +271,6 @@ export default function Tests() {
               <Text style={styles.viewAll}>View All</Text>
             </TouchableOpacity>
           </View>
-          
           {testHistory.map((test, index) => (
             <TouchableOpacity key={index} style={styles.historyCard}>
               <View style={styles.historyContent}>
@@ -191,12 +327,11 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontFamily: 'Inter-Bold',
     color: '#1e293b',
   },
   subtitle: {
     fontSize: 16,
-    fontFamily: 'Inter-Regular',
+
     color: '#64748b',
     marginTop: 8,
   },
@@ -214,13 +349,13 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontFamily: 'Inter-Bold',
+
     color: '#1e293b',
     marginBottom: 16,
   },
   viewAll: {
     fontSize: 14,
-    fontFamily: 'Inter-Medium',
+  
     color: '#3A7CA5',
   },
   statsContainer: {
@@ -241,11 +376,10 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 20,
-    fontFamily: 'Inter-Bold',
+
   },
   statLabel: {
     fontSize: 10,
-    fontFamily: 'Inter-Regular',
     color: '#64748b',
     marginTop: 4,
     textAlign: 'center',
@@ -254,6 +388,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 16,
     overflow: 'hidden',
+    backgroundColor: '#3A7CA5',
+    paddingVertical : 10,
+    paddingHorizontal: 16,
   },
   testContent: {
     flexDirection: 'row',
@@ -271,7 +408,7 @@ const styles = StyleSheet.create({
   },
   testTitle: {
     fontSize: 18,
-    fontFamily: 'Inter-Bold',
+
     color: '#ffffff',
     marginBottom: 8,
   },
@@ -287,13 +424,13 @@ const styles = StyleSheet.create({
   },
   detailText: {
     fontSize: 12,
-    fontFamily: 'Inter-Regular',
+
     color: 'rgba(255, 255, 255, 0.8)',
     marginLeft: 4,
   },
   scoreText: {
     fontSize: 14,
-    fontFamily: 'Inter-Bold',
+
     color: '#ffffff',
     marginTop: 8,
   },
@@ -308,7 +445,7 @@ const styles = StyleSheet.create({
   },
   retakeText: {
     fontSize: 12,
-    fontFamily: 'Inter-Bold',
+
     color: '#ffffff',
   },
   historyCard: {
@@ -332,13 +469,13 @@ const styles = StyleSheet.create({
   },
   historyTitle: {
     fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
+
     color: '#1e293b',
     marginBottom: 4,
   },
   historyDate: {
     fontSize: 12,
-    fontFamily: 'Inter-Regular',
+
     color: '#64748b',
     marginBottom: 8,
   },
@@ -361,7 +498,7 @@ const styles = StyleSheet.create({
   },
   percentageText: {
     fontSize: 12,
-    fontFamily: 'Inter-Bold',
+
     color: '#1e293b',
     minWidth: 35,
   },
@@ -370,7 +507,7 @@ const styles = StyleSheet.create({
   },
   historyScore: {
     fontSize: 16,
-    fontFamily: 'Inter-Bold',
+
     color: '#10b981',
     marginBottom: 4,
   },
@@ -381,7 +518,7 @@ const styles = StyleSheet.create({
   },
   rankText: {
     fontSize: 12,
-    fontFamily: 'Inter-Bold',
+
     color: '#ffa726',
     marginLeft: 4,
   },
@@ -397,7 +534,7 @@ const styles = StyleSheet.create({
   },
   createTestText: {
     fontSize: 18,
-    fontFamily: 'Inter-Bold',
+
     color: '#ffffff',
   },
 });
