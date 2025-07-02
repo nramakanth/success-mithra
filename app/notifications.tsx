@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { Bell, CheckCircle, AlertCircle } from 'lucide-react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { Bell, CheckCircle, AlertCircle, ChevronLeft } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 
 const notifications = [
   {
@@ -75,9 +76,13 @@ const notifications = [
 ];
 
 export default function Notifications() {
+  const router = useRouter();
   return (
     <View style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <ChevronLeft size={24} color="#fff" />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>Notifications</Text>
       </View>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -181,5 +186,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#888',
     marginTop: 16,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 62,
+    left: 18,
+    zIndex: 10,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    borderRadius: 20,
+    padding: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 }); 

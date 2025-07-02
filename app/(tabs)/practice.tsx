@@ -62,7 +62,7 @@ export default function Practice() {
 
       <View style={styles.content}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Practice Modes</Text>
+          {/* <Text style={styles.sectionTitle}>Practice Modes</Text> */}
           {practiceTypes.map((type, index) => (
             <TouchableOpacity
               key={index}
@@ -150,7 +150,14 @@ export default function Practice() {
           </View>
           
           {recentChapters.map((chapter, index) => (
-            <TouchableOpacity key={index} style={styles.chapterCard}>
+            <TouchableOpacity
+              key={index}
+              style={styles.chapterCard}
+              onPress={() => router.push({
+                pathname: '/practice/chapter-details',
+                params: { subject: chapter.subject, chapter: chapter.chapter },
+              })}
+            >
               <View style={styles.chapterContent}>
                 <View style={styles.chapterLeft}>
                   <Text style={styles.chapterSubject}>{chapter.subject}</Text>
@@ -206,13 +213,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   section: {
-    marginBottom: 32,
+    // marginBottom: 32,
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    // marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 20,

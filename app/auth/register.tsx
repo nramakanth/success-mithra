@@ -16,16 +16,16 @@ export default function Register() {
         <View style={styles.innerContent}>
           {/* Social/Alternative Login Buttons */}
           <View style={styles.socialContainer}>
-            <TouchableOpacity style={styles.socialButton}>
+            {/* <TouchableOpacity style={styles.socialButton}>
               <Mail size={20} color="#3A7CA5" style={styles.socialIcon} />
               <Text style={styles.socialText}>Continue with Email</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity style={styles.socialButton}>
-              <AntDesign name="google" size={20} color="#EA4335" style={styles.socialIcon} />
+              <AntDesign name="google" size={20} color="#3A7CA5" style={styles.socialIcon} />
               <Text style={styles.socialText}>Continue with Google</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.socialButton}>
-              <Apple size={20} color="#000" style={styles.socialIcon} />
+              <Apple size={20} color="#3A7CA5" style={styles.socialIcon} />
               <Text style={styles.socialText}>Continue with Apple</Text>
             </TouchableOpacity>
           </View>
@@ -48,7 +48,10 @@ export default function Register() {
           </View>
         </View>
         <Text style={styles.termsText}>
-          By continuing, you accept the <Text style={styles.termsLink}>Terms Of Use</Text> and <Text style={styles.termsLink}>Privacy Policy</Text>.
+          By continuing, you accept the 
+          <Text style={styles.termsLink} onPress={() => router.push('/terms')}>Terms Of Use</Text> 
+          and 
+          <Text style={styles.termsLink} onPress={() => router.push('/privacy')}>Privacy Policy</Text>.
         </Text>
       </ScrollView>
     </View>

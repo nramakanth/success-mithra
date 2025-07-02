@@ -13,7 +13,7 @@ const slides = [
   {
     image: require('../../assets/images/onboarding2.png'),
     title: 'For Aspirants',
-    description: 'This app is for students preparing for JEE, EAMCET, EMCET, and those who have passed intermediate and are preparing for exams.',
+    description: 'Exclusively designed for JEE and EAPCET aspirants to help you excel in your entrance exams.',
   },
   {
     image: require('../../assets/images/onboarding3.png'),

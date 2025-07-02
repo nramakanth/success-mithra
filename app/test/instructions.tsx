@@ -17,10 +17,12 @@ function deepFlattenStrings(arr: any): string[] {
 
 export default function TestInstructions() {
   const router = useRouter();
-  const { testType = 'Mock Test', duration = '120', questions = '10', subject, subjects, lessons } = useLocalSearchParams();
+  const { testType = 'Mock Test', duration = '120', questions = '10', subject, subjects, lessons, difficulty = '', title = '' } = useLocalSearchParams();
   const [agreed, setAgreed] = useState(false);
   let subjectList: string[] = [];
   let lessonList: string[] = [];
+  // Helper to ensure questions is a string
+  const getQuestionsString = (q: string | string[]) => Array.isArray(q) ? q[0] : q;
   try {
     subjectList = subjects ? JSON.parse(subjects as string) : [];
   } catch {
@@ -45,7 +47,7 @@ export default function TestInstructions() {
     {
       icon: Clock,
       title: 'Time Management',
-      description: `You have ${duration} minutes to complete ${questions} questions. Manage your time wisely.`,
+      description: `You have ${duration} to complete ${getQuestionsString(questions)} questions. Manage your time wisely.`,
       color: '#667eea',
     },
     {
@@ -69,13 +71,33 @@ export default function TestInstructions() {
   ];
 
   const handleStartTest = () => {
+    // If lessonList is empty, use subject or 'All' as a default lesson
+    const lessonsToPass = lessonList.length > 0
+      ? lessonList
+      : [subject || 'All'];
+
+    // Set duration and questions based on test type
+    let examDuration = 90;
+    let examQuestions = 30;
+    if (testType === 'combined') {
+      examDuration = 180;
+      examQuestions = 90;
+    } else if (testType === 'previous') {
+      examDuration = 180;
+      examQuestions = 90;
+    } else if (testType === 'mock' && subject !== 'All') {
+      examDuration = 90;
+      examQuestions = 30;
+    }
+
     router.push({
       pathname: '/test/exam',
       params: {
         subject: subject || (subjectList.length ? subjectList[0] : undefined),
-        lessons: JSON.stringify(lessonList),
-        duration: 90,
-        questions: 10,
+        lessons: JSON.stringify(lessonsToPass),
+        duration: examDuration,
+        questions: examQuestions,
+        testType,
       },
     });
   };
@@ -91,11 +113,11 @@ export default function TestInstructions() {
         </TouchableOpacity>
         
         <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>Practice Instructions</Text>
+          <Text style={styles.headerTitle}>{title || 'Practice Instructions'}</Text>
           {isMulti ? (
             <Text style={styles.headerSubtitle}>You will take: {subjectList.join(', ')}</Text>
           ) : (
-            <Text style={styles.headerSubtitle}>{testType}</Text>
+            <Text style={styles.headerSubtitle}>{testType}{difficulty ? ` • ${difficulty}` : ''}</Text>
           )}
         </View>
       </View>
@@ -119,17 +141,22 @@ export default function TestInstructions() {
           <View style={styles.testInfoCard}>
             <View style={styles.testInfoItem}>
               <Text style={styles.testInfoLabel}>Duration</Text>
-              <Text style={styles.testInfoValue}>{duration} minutes</Text>
+              <Text style={styles.testInfoValue}>{duration}</Text>
             </View>
             <View style={styles.divider} />
             <View style={styles.testInfoItem}>
               <Text style={styles.testInfoLabel}>Questions</Text>
-              <Text style={styles.testInfoValue}>{questions}</Text>
+              <Text style={styles.testInfoValue}>{getQuestionsString(questions)}</Text>
+            </View>
+            <View style={styles.divider} />
+            <View style={styles.testInfoItem}>
+              <Text style={styles.testInfoLabel}>Difficulty</Text>
+              <Text style={styles.testInfoValue}>{difficulty}</Text>
             </View>
             <View style={styles.divider} />
             <View style={styles.testInfoItem}>
               <Text style={styles.testInfoLabel}>Total Marks</Text>
-              <Text style={styles.testInfoValue}>{parseInt(questions) * 4}</Text>
+              <Text style={styles.testInfoValue}>{parseInt(getQuestionsString(questions) || '0') * 4}</Text>
             </View>
           </View>
         </View>
@@ -196,7 +223,7 @@ export default function TestInstructions() {
             onPress={() => setAgreed(!agreed)}
             activeOpacity={0.8}
           >
-            {agreed && <CheckCircle size={18} color="#3A7CA5" />}
+            {agreed && <Text style={styles.checkmark}>✓</Text>}
           </TouchableOpacity>
           <Text style={styles.checkboxLabel}>I have read and agree to the instructions</Text>
         </View>
@@ -398,7 +425,7 @@ const styles = StyleSheet.create({
   checkboxRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 18,
   },
   checkbox: {
     width: 22,
@@ -408,17 +435,18 @@ const styles = StyleSheet.create({
     borderColor: '#3A7CA5',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 10,
     backgroundColor: '#fff',
+    marginRight: 10,
   },
   checkboxChecked: {
-    backgroundColor: '#e0f7ef',
-    borderColor: '#3A7CA5',
+    // No fill, just keep border color
   },
   checkboxLabel: {
     fontSize: 15,
-    color: '#1e293b',
+    color: '#3A7CA5',
     fontFamily: 'Inter-Regular',
+    flex: 1,
+    flexWrap: 'wrap',
   },
   selectedLessonsSection: {
     marginTop: 16,
@@ -448,5 +476,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontFamily: 'Inter-Medium',
     fontSize: 15,
+  },
+  checkmark: {
+    color: '#F4A261',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });

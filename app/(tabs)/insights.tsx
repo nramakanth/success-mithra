@@ -1,5 +1,6 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import React, { useRef } from 'react';
+import { View, Text, ScrollView, Dimensions, TouchableOpacity, StyleSheet } from 'react-native';
+import type { ScrollView as RNScrollView, View as RNView } from 'react-native';
 import { LineChart, ProgressChart, BarChart } from 'react-native-chart-kit';
 import { TrendingUp, TrendingDown, Flame, Award, Repeat, Clock } from 'lucide-react-native';
 
@@ -18,10 +19,42 @@ export default function Insights() {
   };
   const bestTopic = 'Optics';
   const weakestTopic = 'Thermodynamics';
-  const streak = 5;
+  const mostImprovedTopic = 'Algebra';
+
+  // Example topic data for each section
+  const bestTopics = {
+    Physics: ['Optics', 'Mechanics'],
+    Chemistry: ['Organic Chemistry'],
+    Math: ['Algebra', 'Calculus'],
+  };
+  const weakestTopics = {
+    Physics: ['Thermodynamics'],
+    Chemistry: ['Inorganic Chemistry'],
+    Math: ['Statistics'],
+  };
+  const improvedTopics = {
+    Physics: ['Waves'],
+    Chemistry: ['Physical Chemistry'],
+    Math: ['Trigonometry'],
+  };
+
+  const scrollRef = useRef<RNScrollView>(null);
+  const chartRef = useRef<RNView>(null);
+  const handleTakeTestScroll = () => {
+    if (chartRef.current && scrollRef.current) {
+      // @ts-ignore
+      chartRef.current.measureLayout(
+        // @ts-ignore
+        scrollRef.current.getInnerViewNode(),
+        (x: number, y: number) => {
+          scrollRef.current?.scrollTo({ y: y - 24, animated: true });
+        }
+      );
+    }
+  };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false} ref={scrollRef}>
       {/* <Text style={styles.header}>Your Insights</Text>
       <Text style={styles.subtitle}>Analysis for {exam} Preparation</Text> */}
 
@@ -33,26 +66,26 @@ export default function Insights() {
       <View style={styles.innercontent}>
 
       {/* Best/Weakest Topic & Streak */}
-      <View style={styles.row}>
-        <View style={[styles.cardGradient, styles.flex1, { marginRight: 8 }]}> 
-          <View style={styles.cardIconRow}><Award size={22} color="#10b981" /></View>
-          <Text style={styles.cardLabel}>Best Topic</Text>
-          <Text style={styles.cardValue}>{bestTopic}</Text>
+      {/* <View style={styles.summaryRowModern}>
+        <View style={[styles.summaryCardModern, { marginRight: 8 }]}> 
+          <Award size={28} color="#10b981" style={styles.summaryIconModern} />
+          <Text style={styles.summaryLabelModern}>Best Topic</Text>
+          <View style={styles.summaryBadgeModern}><Text style={styles.summaryBadgeTextModern}>{bestTopic}</Text></View>
         </View>
-        <View style={[styles.cardGradient, styles.flex1, { marginLeft: 8 }]}> 
-          <View style={styles.cardIconRow}><TrendingDown size={22} color="#ef4444" /></View>
-          <Text style={styles.cardLabel}>Weakest Topic</Text>
-          <Text style={styles.cardValue}>{weakestTopic}</Text>
+        <View style={[styles.summaryCardModern, { marginHorizontal: 8 }]}> 
+          <TrendingDown size={28} color="#ef4444" style={styles.summaryIconModern} />
+          <Text style={styles.summaryLabelModern}>Weakest Topic</Text>
+          <View style={[styles.summaryBadgeModern, { backgroundColor: '#fff0f0' }]}><Text style={[styles.summaryBadgeTextModern, { color: '#ef4444' }]}>{weakestTopic}</Text></View>
         </View>
-        <View style={[styles.cardGradient, styles.flex1, { marginLeft: 8 }]}> 
-          <View style={styles.cardIconRow}><Repeat size={22} color="#F4A261" /></View>
-          <Text style={styles.cardLabel}>Streak</Text>
-          <Text style={styles.cardValue}>{streak} days</Text>
+        <View style={[styles.summaryCardModern, { marginLeft: 8 }]}> 
+          <TrendingUp size={28} color="#10b981" style={styles.summaryIconModern} />
+          <Text style={styles.summaryLabelModern}>Most Improved</Text>
+          <View style={[styles.summaryBadgeModern, { backgroundColor: '#f0fdf4' }]}><Text style={[styles.summaryBadgeTextModern, { color: '#10b981' }]}>{mostImprovedTopic}</Text></View>
         </View>
-      </View>
+      </View> */}
 
       {/* Weekly Practice Questions Line Chart */}
-      <View style={styles.cardGradient}>
+      <View style={styles.cardGradient} ref={chartRef}>
         <View style={styles.cardIconRow}><Flame size={22} color="#3A7CA5" /></View>
         <Text style={styles.cardTitle}>Weekly Practice Questions</Text>
         <LineChart
@@ -139,6 +172,70 @@ export default function Insights() {
           style={{ borderRadius: 16 }}
           showValuesOnTopOfBars
         />
+      </View>
+
+      {/* Best, Weakest, Most Improved Topics Section */}
+      <View style={styles.topicSectionModern}>
+        <Text style={styles.topicSectionTitle}>Your Key Topics</Text>
+        <View style={styles.topicCardsColumn}>
+          {/* Best Topics Card */}
+          <View style={[styles.topicCardModern, { borderColor: '#10b981', marginBottom: 16 }]}> 
+            <View style={styles.topicCardHeader}><Award size={22} color="#10b981" /><Text style={[styles.topicCardTitle, { color: '#10b981' }]}>Best Topics</Text></View>
+            {Object.entries(bestTopics).map(([subject, topics]) => (
+              <View key={subject} style={styles.topicSubjectRow}>
+                <Text style={styles.topicSubjectLabel}>{subject}</Text>
+                <View style={styles.topicBadgesRow}>
+                  {topics.map(topic => (
+                    <View key={topic} style={styles.topicBadge}>
+                      <Text style={styles.topicBadgeText}>{topic}</Text>
+                      <TouchableOpacity style={styles.topicTestBtn} onPress={handleTakeTestScroll}>
+                        <Text style={styles.topicTestBtnText}>Take Test</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            ))}
+          </View>
+          {/* Weakest Topics Card */}
+          <View style={[styles.topicCardModern, { borderColor: '#ef4444', marginBottom: 16 }]}> 
+            <View style={styles.topicCardHeader}><TrendingDown size={22} color="#ef4444" /><Text style={[styles.topicCardTitle, { color: '#ef4444' }]}>Weakest Topics</Text></View>
+            {Object.entries(weakestTopics).map(([subject, topics]) => (
+              <View key={subject} style={styles.topicSubjectRow}>
+                <Text style={styles.topicSubjectLabel}>{subject}</Text>
+                <View style={styles.topicBadgesRow}>
+                  {topics.map(topic => (
+                    <View key={topic} style={styles.topicBadge}>
+                      <Text style={styles.topicBadgeText}>{topic}</Text>
+                      <TouchableOpacity style={styles.topicTestBtn} onPress={handleTakeTestScroll}>
+                        <Text style={styles.topicTestBtnText}>Take Test</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            ))}
+          </View>
+          {/* Most Improved Topics Card */}
+          <View style={[styles.topicCardModern, { borderColor: '#10b981' }]}> 
+            <View style={styles.topicCardHeader}><TrendingUp size={22} color="#10b981" /><Text style={[styles.topicCardTitle, { color: '#10b981' }]}>Most Improved</Text></View>
+            {Object.entries(improvedTopics).map(([subject, topics]) => (
+              <View key={subject} style={styles.topicSubjectRow}>
+                <Text style={styles.topicSubjectLabel}>{subject}</Text>
+                <View style={styles.topicBadgesRow}>
+                  {topics.map(topic => (
+                    <View key={topic} style={styles.topicBadge}>
+                      <Text style={styles.topicBadgeText}>{topic}</Text>
+                      <TouchableOpacity style={styles.topicTestBtn} onPress={handleTakeTestScroll}>
+                        <Text style={styles.topicTestBtnText}>Take Test</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            ))}
+          </View>
+        </View>
       </View>
 
       </View>
@@ -278,5 +375,127 @@ const styles = StyleSheet.create({
   },
   negative: {
     color: '#ff6b6b',
+  },
+  summaryRowModern: {
+    flexDirection: 'row',
+    marginBottom: 18,
+    gap: 0,
+  },
+  summaryCardModern: {
+    flex: 1,
+    backgroundColor: '#f8fafc',
+    borderRadius: 18,
+    alignItems: 'center',
+    paddingVertical: 18,
+    paddingHorizontal: 8,
+    shadowColor: '#3A7CA5',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#e6ecf2',
+  },
+  summaryIconModern: {
+    marginBottom: 6,
+  },
+  summaryLabelModern: {
+    fontSize: 13,
+    color: '#64748b',
+    fontFamily: 'Inter-Medium',
+    marginBottom: 4,
+  },
+  summaryBadgeModern: {
+    backgroundColor: '#f0fdf4',
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    marginTop: 2,
+  },
+  summaryBadgeTextModern: {
+    fontSize: 15,
+    color: '#10b981',
+    fontFamily: 'Inter-Bold',
+    textAlign: 'center',
+  },
+  topicSectionModern: {
+    marginTop: 10,
+    marginBottom: 24,
+    paddingHorizontal: 2,
+  },
+  topicSectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1e293b',
+    marginBottom: 14,
+    textAlign: 'center',
+  },
+  topicCardsColumn: {
+    flexDirection: 'column',
+    gap: 0,
+  },
+  topicCardModern: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    borderWidth: 2,
+    padding: 16,
+    marginHorizontal: 2,
+    shadowColor: '#3A7CA5',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  topicCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    gap: 6,
+  },
+  topicCardTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 6,
+  },
+  topicSubjectRow: {
+    marginBottom: 8,
+  },
+  topicSubjectLabel: {
+    fontSize: 13,
+    color: '#64748b',
+    fontWeight: 'bold',
+    marginBottom: 2,
+  },
+  topicBadgesRow: {
+    marginBottom: 2,
+  },
+  topicBadge: {
+    backgroundColor: '#f0f4ff',
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginBottom: 8,
+    width: '100%',
+  },
+  topicBadgeText: {
+    fontSize: 15,
+    color: '#3A7CA5',
+    fontWeight: 'bold',
+  },
+  topicTestBtn: {
+    backgroundColor: '#F4A261',
+    borderRadius: 10,
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+    marginLeft: 2,
+  },
+  topicTestBtnText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: 'bold',
   },
 }); 

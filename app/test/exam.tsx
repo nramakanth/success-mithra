@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, Modal, InteractionManager } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, Modal, InteractionManager, BackHandler } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { ChevronLeft, Clock, CheckCircle, XCircle, Eye } from 'lucide-react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 const BRAND_COLORS = {
   primary: '#3A7CA5',
@@ -293,7 +294,7 @@ function generateMockQuestions(lessons: string[], subject: string): any[] {
 
 export default function Exam() {
   const router = useRouter();
-  const { subject, lessons: lessonsParam, answers: prevAnswers } = useLocalSearchParams();
+  const { subject, lessons: lessonsParam, answers: prevAnswers, testType, duration } = useLocalSearchParams();
   const lessonListRaw = (() => {
     try {
       if (!lessonsParam) return [];
@@ -310,41 +311,92 @@ export default function Exam() {
   })();
   const lessonList = Array.isArray(lessonListRaw) && lessonListRaw.every(l => typeof l === 'string') ? lessonListRaw : [];
   const safeSubject = typeof subject === 'string' ? subject : '';
-  const MOCK_QUESTIONS = generateMockQuestions(lessonList, safeSubject);
-  
-  // Lesson and question tracking
-  const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selected, setSelected] = useState<{ [key: string]: number[] }>({});
-  const [markedRead, setMarkedRead] = useState<{ [key: string]: boolean }>({});
-  const [timeLeft, setTimeLeft] = useState(120); // 2 minutes per question
+  let MOCK_QUESTIONS: any[] = [];
+  let combinedSubjects = ['Maths', 'Chemistry', 'Physics'];
+  let combinedQuestionsBySubject: { [subject: string]: any[] } = {};
+  if (testType === 'combined' || testType === 'previous') {
+    combinedSubjects.forEach((subj) => {
+      combinedQuestionsBySubject[subj] = generateMockQuestions(['All'], subj).slice(0, 30).map((q, idx) => ({ ...q, subject: subj, paletteIndex: idx }));
+    });
+  } else {
+    MOCK_QUESTIONS = generateMockQuestions(lessonList, safeSubject);
+  }
+  // For combined test, track current subject and question within that subject
+  const [combinedSubjectIndex, setCombinedSubjectIndex] = useState(0);
+  const [combinedQuestionIndex, setCombinedQuestionIndex] = useState(0);
+  const [showNextSubjectModal, setShowNextSubjectModal] = useState(false);
+  // For mock/combined/previous: overall exam timer. For practice: per-question timer.
+  const isOverallTimer = testType === 'mock' || testType === 'combined' || testType === 'previous';
+  const initialOverallTime = (() => {
+    if (typeof duration === 'string') {
+      const match = duration.match(/\d+/);
+      if (match) return parseInt(match[0], 10) * 60;
+    } else if (typeof duration === 'number') {
+      return duration * 60;
+    }
+    return 120 * 60; // default 120 min
+  })();
+  const [overallTimeLeft, setOverallTimeLeft] = useState(initialOverallTime);
+  const [questionTimeLeft, setQuestionTimeLeft] = useState(120); // 2 min per question default
   const timerRef = useRef<NodeJS.Timeout | ReturnType<typeof setTimeout> | null>(null);
   const [showNextLessonModal, setShowNextLessonModal] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showPalette, setShowPalette] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
+  const [showExitModal, setShowExitModal] = useState(false);
+  // Always define these for both combined and non-combined test logic
+  const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selected, setSelected] = useState<{ [key: string]: number[] }>({});
+  const [markedRead, setMarkedRead] = useState<{ [key: string]: boolean }>({});
 
   // Get current lesson and questions
-  const currentLesson = lessonList[currentLessonIndex] || '';
-  const currentLessonQuestions = MOCK_QUESTIONS.filter(q => q.lesson === currentLesson);
-  const q = currentLessonQuestions[currentQuestionIndex];
+  let currentLesson = lessonList[currentLessonIndex] || '';
+  let currentLessonQuestions: any[] = [];
+  let q: any = null;
+  if (testType === 'combined' || testType === 'previous') {
+    const subject = combinedSubjects[combinedSubjectIndex];
+    currentLesson = subject;
+    currentLessonQuestions = combinedQuestionsBySubject[subject] || [];
+    q = currentLessonQuestions[combinedQuestionIndex];
+  } else {
+    currentLessonQuestions = MOCK_QUESTIONS.filter(q => q.lesson === currentLesson);
+    q = currentLessonQuestions[currentQuestionIndex];
+  }
   const selectedOptions = selected[q?.id] || [];
   const isRead = markedRead[q?.id];
 
+  // Timer effect
   useEffect(() => {
-    setTimeLeft(120); // Reset to 2 minutes for each question
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      setTimeLeft((t) => {
-        if (t <= 1) {
-          handleAutoNext();
-          return 120;
-        }
-        return t - 1;
-      });
-    }, 1000);
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [currentLessonIndex, currentQuestionIndex]);
+    if (isOverallTimer) {
+      setOverallTimeLeft(initialOverallTime);
+      if (timerRef.current) clearInterval(timerRef.current);
+      timerRef.current = setInterval(() => {
+        setOverallTimeLeft((t) => {
+          if (t <= 1) {
+            setShowSubmitModal(true);
+            if (timerRef.current) clearInterval(timerRef.current);
+            return 0;
+          }
+          return t - 1;
+        });
+      }, 1000);
+      return () => { if (timerRef.current) clearInterval(timerRef.current); };
+    } else {
+      setQuestionTimeLeft(120);
+      if (timerRef.current) clearInterval(timerRef.current);
+      timerRef.current = setInterval(() => {
+        setQuestionTimeLeft((t) => {
+          if (t <= 1) {
+            // Do not auto-next for combined test or any test, just stop timer
+            return 0;
+          }
+          return t - 1;
+        });
+      }, 1000);
+      return () => { if (timerRef.current) clearInterval(timerRef.current); };
+    }
+  }, [isOverallTimer, initialOverallTime, currentLessonIndex, currentQuestionIndex]);
 
   // Scroll to top on question change (using InteractionManager for reliability)
   useEffect(() => {
@@ -380,26 +432,48 @@ export default function Exam() {
   };
 
   const handleNext = () => {
-    if (currentQuestionIndex < currentLessonQuestions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    } else {
-      if (currentLessonIndex < lessonList.length - 1) {
-        setShowNextLessonModal(true);
+    if (testType === 'combined' || testType === 'previous') {
+      if (combinedQuestionIndex < currentLessonQuestions.length - 1) {
+        setCombinedQuestionIndex(combinedQuestionIndex + 1);
       } else {
-        setShowSubmitModal(true);
+        if (combinedSubjectIndex < combinedSubjects.length - 1) {
+          setShowNextSubjectModal(true);
+        } else {
+          setShowSubmitModal(true);
+        }
+      }
+    } else {
+      if (currentQuestionIndex < currentLessonQuestions.length - 1) {
+        setCurrentQuestionIndex(currentQuestionIndex + 1);
+      } else {
+        if (currentLessonIndex < lessonList.length - 1) {
+          setShowNextLessonModal(true);
+        } else {
+          setShowSubmitModal(true);
+        }
       }
     }
   };
 
   const handlePrev = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-    } else if (currentLessonIndex > 0) {
-      // Go to last question of previous lesson
-      const prevLesson = lessonList[currentLessonIndex - 1];
-      const prevLessonQuestions = MOCK_QUESTIONS.filter(q => q.lesson === prevLesson);
-      setCurrentLessonIndex(currentLessonIndex - 1);
-      setCurrentQuestionIndex(prevLessonQuestions.length - 1);
+    if (testType === 'combined' || testType === 'previous') {
+      if (combinedQuestionIndex > 0) {
+        setCombinedQuestionIndex(combinedQuestionIndex - 1);
+      } else if (combinedSubjectIndex > 0) {
+        // Go to last question of previous subject
+        const prevSubject = combinedSubjects[combinedSubjectIndex - 1];
+        setCombinedSubjectIndex(combinedSubjectIndex - 1);
+        setCombinedQuestionIndex((combinedQuestionsBySubject[prevSubject] || []).length - 1);
+      }
+    } else {
+      if (currentQuestionIndex > 0) {
+        setCurrentQuestionIndex(currentQuestionIndex - 1);
+      } else if (currentLessonIndex > 0) {
+        const prevLesson = lessonList[currentLessonIndex - 1];
+        const prevLessonQuestions = MOCK_QUESTIONS.filter(q => q.lesson === prevLesson);
+        setCurrentLessonIndex(currentLessonIndex - 1);
+        setCurrentQuestionIndex(prevLessonQuestions.length - 1);
+      }
     }
   };
 
@@ -424,15 +498,40 @@ export default function Exam() {
   };
 
   // Progress
-  const totalQuestions = lessonList.reduce((total, lesson) => {
-    return total + MOCK_QUESTIONS.filter(q => q.lesson === lesson).length;
-  }, 0);
-  const completedQuestions = lessonList.slice(0, currentLessonIndex).reduce((total, lesson) => {
-    return total + MOCK_QUESTIONS.filter(q => q.lesson === lesson).length;
-  }, 0) + currentQuestionIndex;
+  let totalQuestions = 0;
+  let completedQuestions = 0;
+  if (testType === 'combined' || testType === 'previous') {
+    totalQuestions = combinedSubjects.reduce((sum, subj) => sum + (combinedQuestionsBySubject[subj]?.length || 0), 0);
+    completedQuestions = combinedSubjects.slice(0, combinedSubjectIndex).reduce((sum, subj) => sum + (combinedQuestionsBySubject[subj]?.length || 0), 0) + combinedQuestionIndex;
+  } else {
+    totalQuestions = lessonList.reduce((total, lesson) => {
+      return total + MOCK_QUESTIONS.filter(q => q.lesson === lesson).length;
+    }, 0);
+    completedQuestions = lessonList.slice(0, currentLessonIndex).reduce((total, lesson) => {
+      return total + MOCK_QUESTIONS.filter(q => q.lesson === lesson).length;
+    }, 0) + currentQuestionIndex;
+  }
   const progress = ((completedQuestions + 1) / totalQuestions) * 100;
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
+  const minutes = isOverallTimer
+    ? Math.floor(overallTimeLeft / 60)
+    : Math.floor(questionTimeLeft / 60);
+  const seconds = isOverallTimer
+    ? overallTimeLeft % 60
+    : questionTimeLeft % 60;
+
+  // Prevent hardware back for mock tests
+  useFocusEffect(
+    React.useCallback(() => {
+      if (testType === 'combined' || testType === 'previous' || testType === 'mock') {
+        const onBackPress = () => {
+          setShowExitModal(true);
+          return true; // Prevent default
+        };
+        const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+        return () => subscription.remove();
+      }
+    }, [testType])
+  );
 
   if (!q) return null;
 
@@ -440,17 +539,25 @@ export default function Exam() {
     <View style={{ flex: 1, backgroundColor: BRAND_COLORS.bg }}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <ChevronLeft size={24} color="#fff" />
-        </TouchableOpacity>
+        {(testType === 'combined' || testType === 'previous') ? (
+          <TouchableOpacity style={styles.backBtn} onPress={() => setShowExitModal(true)}>
+            <XCircle size={24} color="#fff" />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+            <ChevronLeft size={24} color="#fff" />
+          </TouchableOpacity>
+        )}
         <View style={{ flex: 1, alignItems: 'center' }}>
-          <Text style={styles.headerTitle}>{safeSubject}</Text>
-          <Text style={styles.lessonHeader}>{currentLesson}</Text>
+          <Text style={styles.headerTitle}>{safeSubject || (testType === 'combined' ? 'Combined Test' : '')}</Text>
+          {testType !== 'combined' && <Text style={styles.lessonHeader}>{currentLesson}</Text>}
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <View style={styles.timerBox}>
             <Clock size={18} color="#fff" />
-            <Text style={styles.timerText}>{minutes}:{seconds.toString().padStart(2, '0')}</Text>
+            <Text style={styles.timerText}>
+              {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
+            </Text>
           </View>
           <TouchableOpacity style={styles.paletteToggleBtn} onPress={() => setShowPalette(true)}>
             <Eye size={22} color="#fff" />
@@ -472,6 +579,14 @@ export default function Exam() {
               <Image source={{ uri: q.image }} style={styles.questionImage} resizeMode="cover" />
             </View>
           )}
+          {/* Show subject for combined test */}
+          {(testType === 'combined' || testType === 'previous') ? (
+            <Text style={{ fontWeight: 'bold', color: '#3A7CA5', marginBottom: 4 }}>{currentLesson}</Text>
+          ) : null}
+          {/* Show question number */}
+          <Text style={{ fontWeight: 'bold', color: '#64748b', marginBottom: 4 }}>
+            Question {(testType === 'combined' || testType === 'previous') ? combinedQuestionIndex + 1 : currentQuestionIndex + 1}/30
+          </Text>
           <Text style={styles.questionText}>{q.question}</Text>
           <View style={styles.optionsList}>
             {q.options.map((opt: any, idx: number) => (
@@ -559,31 +674,63 @@ export default function Exam() {
         <View style={styles.paletteModalBg}>
           <View style={styles.paletteModalCard}>
             <Text style={styles.paletteTitle}>Question Palette</Text>
-            <View style={styles.paletteGrid}>
-              {MOCK_QUESTIONS.map((question, idx) => {
-                const isAnswered = selected[question.id]?.length > 0;
-                const isMarked = markedRead[question.id];
-                let bgColor = '#e2e8f0';
-                if (isMarked) bgColor = '#3A7CA5';
-                else if (isAnswered) bgColor = '#10b981';
-                return (
-                  <TouchableOpacity
-                    key={question.id}
-                    style={[styles.paletteNumber, { backgroundColor: bgColor }]}
-                    onPress={() => {
-                      setShowPalette(false);
-                      // Find lesson and question index
-                      const lessonIdx = lessonList.findIndex(l => l === question.lesson);
-                      const qIdx = MOCK_QUESTIONS.filter(q => q.lesson === question.lesson).findIndex(q => q.id === question.id);
-                      setCurrentLessonIndex(lessonIdx);
-                      setCurrentQuestionIndex(qIdx);
-                    }}
-                  >
-                    <Text style={styles.paletteNumberText}>{idx + 1}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+            {(testType === 'combined' || testType === 'previous') ? (
+              <View>
+                {combinedSubjects.map((subj, subjIdx) => (
+                  <View key={subj} style={{ marginBottom: 8 }}>
+                    <Text style={{ fontWeight: 'bold', color: '#3A7CA5', marginBottom: 2 }}>{subj}</Text>
+                    <View style={[styles.paletteGrid, { marginBottom: 4 }]}> 
+                      {combinedQuestionsBySubject[subj].map((question, idx) => {
+                        const isAnswered = selected[question.id]?.length > 0;
+                        const isMarked = markedRead[question.id];
+                        let bgColor = '#e2e8f0';
+                        if (isMarked) bgColor = '#3A7CA5';
+                        else if (isAnswered) bgColor = '#10b981';
+                        return (
+                          <TouchableOpacity
+                            key={question.id}
+                            style={[styles.paletteNumber, { backgroundColor: bgColor }]}
+                            onPress={() => {
+                              setShowPalette(false);
+                              setCombinedSubjectIndex(subjIdx);
+                              setCombinedQuestionIndex(idx);
+                            }}
+                          >
+                            <Text style={styles.paletteNumberText}>{idx + 1}</Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <View style={styles.paletteGrid}>
+                {MOCK_QUESTIONS.map((question, idx) => {
+                  const isAnswered = selected[question.id]?.length > 0;
+                  const isMarked = markedRead[question.id];
+                  let bgColor = '#e2e8f0';
+                  if (isMarked) bgColor = '#3A7CA5';
+                  else if (isAnswered) bgColor = '#10b981';
+                  return (
+                    <TouchableOpacity
+                      key={question.id}
+                      style={[styles.paletteNumber, { backgroundColor: bgColor }]}
+                      onPress={() => {
+                        setShowPalette(false);
+                        // Find lesson and question index
+                        const lessonIdx = lessonList.findIndex(l => l === question.lesson);
+                        const qIdx = MOCK_QUESTIONS.filter(q => q.lesson === question.lesson).findIndex(q => q.id === question.id);
+                        setCurrentLessonIndex(lessonIdx);
+                        setCurrentQuestionIndex(qIdx);
+                      }}
+                    >
+                      <Text style={styles.paletteNumberText}>{idx + 1}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
             <View style={styles.paletteLegendRow}>
               <View style={[styles.paletteLegendDot, { backgroundColor: '#10b981' }]} /><Text style={styles.paletteLegendText}>Answered</Text>
               <View style={[styles.paletteLegendDot, { backgroundColor: '#3A7CA5' }]} /><Text style={styles.paletteLegendText}>Marked as Read</Text>
@@ -595,6 +742,50 @@ export default function Exam() {
           </View>
         </View>
       </Modal>
+
+      {/* Exit Modal for Mock Test */}
+      <Modal visible={showExitModal} transparent animationType="fade">
+        <View style={styles.modalBg}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Exit Test?</Text>
+            <Text style={styles.modalMsg}>Are you sure you want to exit? Your progress will be lost.</Text>
+            <View style={styles.modalBtnsRow}>
+              <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#e2e8f0' }]} onPress={() => setShowExitModal(false)}>
+                <Text style={[styles.modalBtnText, { color: BRAND_COLORS.gray }]}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.modalBtn, { backgroundColor: BRAND_COLORS.accent }]} onPress={() => router.replace('/(tabs)/tests')}>
+                <Text style={[styles.modalBtnText, { color: '#fff' }]}>Exit</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Next Subject Modal for combined test */}
+      {testType === 'combined' && (
+        <Modal visible={showNextSubjectModal} transparent animationType="fade">
+          <View style={styles.modalBg}>
+            <View style={styles.modalCard}>
+              <Text style={styles.modalTitle}>Subject Completed!</Text>
+              <Text style={styles.modalMsg}>
+                You have completed all questions for {currentLesson}. Ready to proceed to {combinedSubjects[combinedSubjectIndex + 1]}?
+              </Text>
+              <View style={styles.modalBtnsRow}>
+                <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#e2e8f0' }]} onPress={() => setShowNextSubjectModal(false)}>
+                  <Text style={[styles.modalBtnText, { color: BRAND_COLORS.gray }]}>Review</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.modalBtn, { backgroundColor: BRAND_COLORS.accent }]} onPress={() => {
+                  setShowNextSubjectModal(false);
+                  setCombinedSubjectIndex(combinedSubjectIndex + 1);
+                  setCombinedQuestionIndex(0);
+                }}>
+                  <Text style={[styles.modalBtnText, { color: '#fff' }]}>Next Subject</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 }

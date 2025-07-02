@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, Image, ScrollView, Modal, Alert, Animated, Easing } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, ChevronLeft, Shield, RotateCcw } from 'lucide-react-native';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, ChevronLeft, Shield, RotateCcw, Phone } from 'lucide-react-native';
 import { AntDesign } from '@expo/vector-icons';
 import type { TextInput as RNTextInput } from 'react-native';
 
@@ -10,6 +10,7 @@ const { width } = Dimensions.get('window');
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [mobile, setMobile] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
@@ -97,7 +98,7 @@ export default function Login() {
     setTimeout(() => {
       setOtpLoading(false);
       setShowOtpModal(false);
-      router.replace('/auth/letus-details');
+      router.replace('/(tabs)');
     }, 1500);
   };
 
@@ -126,41 +127,17 @@ export default function Login() {
           {/* Form */}
           <View style={styles.formContainer}>
             <View style={styles.inputContainer}>
-              <Mail size={20} color="#3A7CA5" style={styles.inputIcon} />
+              <Phone size={20} color="#3A7CA5" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Email address"
+                placeholder="Mobile Number"
                 placeholderTextColor="#A0A0A0"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
+                value={mobile}
+                onChangeText={setMobile}
+                keyboardType="phone-pad"
+                maxLength={10}
               />
             </View>
-            <View style={styles.inputContainer}>
-              <Lock size={20} color="#3A7CA5" style={styles.inputIcon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Password"
-                placeholderTextColor="#A0A0A0"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-              />
-              <TouchableOpacity
-                style={styles.eyeIcon}
-                onPress={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <EyeOff size={20} color="#A0A0A0" />
-                ) : (
-                  <Eye size={20} color="#A0A0A0" />
-                )}
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity style={styles.forgotPassword} onPress={() => router.push('/auth/forgotpassword')}>
-              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-            </TouchableOpacity>
             <TouchableOpacity
               style={styles.loginButton}
               onPress={handleLogin}
@@ -175,7 +152,7 @@ export default function Login() {
               <View style={styles.dividerLine} />
             </View>
             <TouchableOpacity style={styles.googleButton}>
-              <AntDesign name="google" size={22} color="#EA4335" style={styles.googleIcon} />
+              <AntDesign name="google" size={22} color="#3A7CA5" style={styles.googleIcon} />
               <Text style={styles.googleText}>Continue with Google</Text>
             </TouchableOpacity>
           </View>
@@ -198,11 +175,11 @@ export default function Login() {
         <View style={styles.modalOverlay}>
           <Animated.View style={[styles.otpModalCard, { transform: [{ scale: otpScale }], opacity: otpOpacity }]}>
             <View style={styles.otpHeader}>
-              <View style={styles.otpIconContainer}>
-                <Shield size={48} color="#667eea" />
-              </View>
+              {/* <View style={styles.otpIconContainer}>
+                <Shield size={40} color="#3A7CA5" />
+              </View> */}
               <Text style={styles.otpTitle}>Enter Verification Code</Text>
-              <Text style={styles.otpSubtitle}>We've sent a 4-digit code to your email</Text>
+              <Text style={styles.otpSubtitle}>We've sent a 4-digit code to your number</Text>
             </View>
             <View style={styles.otpContainer}>
               {otp.map((digit, index) => (

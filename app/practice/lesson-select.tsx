@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { ChevronLeft } from 'lucide-react-native';
 
 const MOCK_LESSONS: Record<string, { name: string; id: string }[]> = {
   Physics: [
@@ -50,9 +51,10 @@ export default function LessonSelect() {
 
   return (
     <View style={styles.container}>
-      {/* <Text style={styles.title}>Select Lessons</Text>
-      <Text style={styles.subtitle}>{subject}</Text> */}
       <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <ChevronLeft size={24} color="#fff" />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>Select Lessons</Text>
         <Text style={styles.headerSubtitle}>{subject}</Text>
       </View>
@@ -117,7 +119,17 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     textAlign: 'center',
   },
- 
+  backButton: {
+    position: 'absolute',
+    top: 62,
+    left: 18,
+    zIndex: 10,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    borderRadius: 20,
+    padding: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   scrollContent: {
     paddingHorizontal: 20,
     paddingBottom: 120,

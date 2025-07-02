@@ -27,7 +27,7 @@ export default function RegisterDetails() {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-      router.replace('/(tabs)');
+      // Do not redirect to tabs here. Only letus-details will be shown after registration.
     }, 1500);
   };
 
@@ -64,8 +64,13 @@ export default function RegisterDetails() {
                 placeholder="Phone Number"
                 placeholderTextColor="#A0A0A0"
                 value={formData.phoneNumber}
-                onChangeText={(text) => setFormData({...formData, phoneNumber: text})}
+                onChangeText={(text) => {
+                  // Only allow numbers and max 10 digits
+                  const cleaned = text.replace(/[^0-9]/g, '').slice(0, 10);
+                  setFormData({...formData, phoneNumber: cleaned});
+                }}
                 keyboardType="numeric"
+                maxLength={10}
               />
             </View>
             <View style={styles.inputContainer}>
@@ -128,12 +133,18 @@ export default function RegisterDetails() {
                 {agreed && <Text style={styles.checkmark}>✓</Text>}
               </View>
               <Text style={styles.checkboxLabel}>
-                I agree to the <Text style={styles.link}>Terms of Use</Text> and <Text style={styles.link}>Privacy Policy</Text>
+                I agree to the 
+                <Text style={styles.link} onPress={() => router.push('/terms')}>Terms of Use</Text> 
+                and 
+                <Text style={styles.link} onPress={() => router.push('/privacy')}>Privacy Policy</Text>
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.registerButton, !agreed && { opacity: 0.6 }]}
-              onPress={handleRegister}
+              onPress={async () => {
+                await handleRegister();
+                router.replace('/auth/letus-details');
+              }}
               disabled={isLoading || !agreed}
             >
               <Text style={styles.registerText}>{isLoading ? 'Creating Account...' : 'Create Account'}</Text>

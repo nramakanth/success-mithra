@@ -100,14 +100,14 @@ export default function Tests() {
       rank: 234,
     },
     {
-      title: 'Chemistry Subject Test',
+      title: 'Chemistry Mock Test',
       score: '25/30',
       percentage: 83,
       date: '5 days ago',
       rank: 156,
     },
     {
-      title: 'Mathematics Practice',
+      title: 'Mathematics Mock Test',
       score: '22/30',
       percentage: 73,
       date: '1 week ago',
@@ -130,6 +130,10 @@ export default function Tests() {
         subject: test.subject,
         testType: test.year ? 'previous' : (test.subject === 'All' ? 'combined' : 'mock'),
         testId: test.id,
+        duration: test.duration,
+        questions: test.questions,
+        difficulty: test.difficulty,
+        title: test.title,
       },
     });
   };
@@ -298,18 +302,12 @@ export default function Tests() {
                     <Trophy size={16} color="#3A7CA5" />
                     <Text style={styles.rankText}>#{test.rank}</Text>
                   </View>
-                  <ChevronRight size={20} color="#94a3b8" />
+                  {/* <ChevronRight size={20} color="#94a3b8" /> */}
                 </View>
               </View>
             </TouchableOpacity>
           ))}
         </View>
-
-        <TouchableOpacity style={styles.createTestButton}>
-          <View style={styles.createTestGradient}>
-            <Text style={styles.createTestText}>Create Custom Test</Text>
-          </View>
-        </TouchableOpacity>
       </View>
     </ScrollView>
   );

@@ -1,7 +1,8 @@
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Dimensions, Image } from 'react-native';
 // import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { BookOpen, Target, TrendingUp, Award, Clock, Users, Trophy, ChevronRight, FileText, Play, Star, Calendar, Zap } from 'lucide-react-native';
+import { BookOpen, Target, TrendingUp, Award, Clock, Users, Trophy, ChevronRight, FileText, Play, Star, Calendar, Zap, MessageCircle, Gift, UserPlus } from 'lucide-react-native';
+import React, { useState } from 'react';
 
 const { width } = Dimensions.get('window');
 
@@ -11,7 +12,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F6F8FB',
   },
   header: {
-    paddingTop: 60,
+    // paddingTop: 60,
     paddingBottom: 24,
     paddingHorizontal: 24,
     backgroundColor: '#3A7CA5',
@@ -39,7 +40,6 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontSize: 18,
-    fontFamily: 'Inter-Bold',
     color: '#ffffff',
   },
   greetingContainer: {
@@ -47,12 +47,10 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 14,
-    fontFamily: 'Inter-Regular',
     color: 'rgba(255, 255, 255, 0.9)',
   },
   username: {
     fontSize: 20,
-    fontFamily: 'Inter-Bold',
     color: '#ffffff',
     marginTop: 2,
   },
@@ -102,17 +100,15 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 18,
-    fontFamily: 'Inter-Bold',
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 10,
-    fontFamily: 'Inter-Regular',
     color: '#64748b',
     textAlign: 'center',
   },
   content: {
-    paddingVertical: 24,
+    // paddingVertical: 24,
     paddingHorizontal: 12,
   },
   section: {
@@ -127,14 +123,13 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    // fontFamily: 'Inter-Bold',
     fontWeight: 'bold',
     marginVertical: 12,
     color: '#1e293b',
   },
   viewAll: {
     fontSize: 14,
-    fontFamily: 'Inter-Medium',
+   
     color: '#667eea',
   },
   testCard: {
@@ -169,7 +164,6 @@ const styles = StyleSheet.create({
   },
   testTitle: {
     fontSize: 18,
-    fontFamily: 'Inter-Bold',
     color: '#ffffff',
     marginBottom: 4,
   },
@@ -179,7 +173,6 @@ const styles = StyleSheet.create({
   },
   testDetail: {
     fontSize: 12,
-    fontFamily: 'Inter-Regular',
     color: 'rgba(255, 255, 255, 0.8)',
     marginRight: 8,
   },
@@ -209,12 +202,10 @@ const styles = StyleSheet.create({
   },
   streakCount: {
     fontSize: 24,
-    fontFamily: 'Inter-Bold',
     color: '#1e293b',
   },
   streakSubtext: {
     fontSize: 14,
-    fontFamily: 'Inter-Regular',
     color: '#64748b',
   },
   streakBadge: {
@@ -225,7 +216,6 @@ const styles = StyleSheet.create({
   },
   streakBadgeText: {
     fontSize: 12,
-    fontFamily: 'Inter-SemiBold',
     color: '#92400e',
   },
   streakDays: {
@@ -237,7 +227,6 @@ const styles = StyleSheet.create({
   },
   streakDayText: {
     fontSize: 12,
-    fontFamily: 'Inter-Medium',
     marginBottom: 8,
   },
   streakDot: {
@@ -283,19 +272,16 @@ const styles = StyleSheet.create({
   practiceSubjectModern: {
     fontSize: 13,
     color: '#3A7CA5',
-    fontFamily: 'Inter-Bold',
     marginBottom: 2,
   },
   practiceChapterModern: {
     fontSize: 16,
-    fontFamily: 'Inter-Bold',
-    color: '#222',
+      color: '#222',
     marginBottom: 2,
   },
   practiceQuestionsModern: {
     fontSize: 12,
     color: '#888',
-    fontFamily: 'Inter-Regular',
     marginBottom: 6,
   },
   progressContainerModern: {
@@ -318,7 +304,6 @@ const styles = StyleSheet.create({
   progressTextModern: {
     fontSize: 12,
     color: '#3A7CA5',
-    fontFamily: 'Inter-Bold',
     minWidth: 32,
     textAlign: 'right',
   },
@@ -337,7 +322,6 @@ const styles = StyleSheet.create({
   },
   practiceButtonTextModern: {
     color: '#fff',
-    fontFamily: 'Inter-Bold',
     fontSize: 14,
   },
   quickActionsModern: {
@@ -370,8 +354,7 @@ const styles = StyleSheet.create({
   },
   quickActionTextModern: {
     fontSize: 15,
-    fontFamily: 'Inter-Bold',
-    color: '#222',
+        color: '#222',
     textAlign: 'center',
   },
   mentorsScroll: {
@@ -391,14 +374,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#e5e7eb',
   },
   stickyUserInfoBar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 10,
     backgroundColor: '#3A7CA5',
     paddingTop: 60,
-    paddingBottom: 16,
+    paddingBottom: 0,
     paddingHorizontal: 24,
   },
   mockTestsList: {
@@ -539,16 +517,109 @@ const styles = StyleSheet.create({
     // justifyContent: 'center',
     alignItems: 'flex-start',
   },
+  subscriptionBannerMinimal: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff7e6',
+    borderRadius: 24,
+    marginHorizontal: 10,
+    marginTop: 14,
+    paddingVertical: 18,
+    paddingHorizontal: 18,
+    shadowColor: '#F4A261',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.10,
+    shadowRadius: 8,
+    elevation: 2,
+    position: 'relative',
+    gap: 12,
+  },
+  subscriptionBannerLeftMinimal: {
+    marginRight: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  subscriptionCrownMinimal: {
+    fontSize: 38,
+    marginRight: 2,
+  },
+  subscriptionTitleMinimal: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#b45309',
+    marginRight: 12,
+  },
+  subscribeButtonMinimal: {
+    backgroundColor: '#F4A261',
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 18,
+  },
+  subscribeButtonTextMinimal: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
+  closeButtonMinimal: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    zIndex: 10,
+    padding: 4,
+    borderRadius: 16,
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  closeButtonTextMinimal: {
+    fontSize: 16,
+    color: '#b45309',
+    fontWeight: 'bold',
+  },
+  quickActionsModernGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  quickActionModernCard: {
+    width: '48%',
+    aspectRatio: 1.3,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  quickActionModernIconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  quickActionModernText: {
+    fontSize: 15,
+    color: '#1e293b',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
 });
 
 export default function Home() {
   const router = useRouter();
+  const [showBanner, setShowBanner] = useState(true);
 
   const stats = [
-    { icon: BookOpen, label: 'Questions Solved', value: '1,234', color: '#667eea', bgColor: '#f0f4ff' },
-    { icon: Trophy, label: 'Tests Completed', value: '45', color: '#ff6b6b', bgColor: '#fff0f0' },
-    { icon: TrendingUp, label: 'Accuracy', value: '78%', color: '#10b981', bgColor: '#f0fdf4' },
-    { icon: Clock, label: 'Study Time', value: '124h', color: '#f59e0b', bgColor: '#fffbeb' },
+    { icon: BookOpen, label: 'Tests Taken', value: '45', color: '#667eea', bgColor: '#f0f4ff' },
+    { icon: Trophy, label: 'Best score', value: '92%', color: '#ff6b6b', bgColor: '#fff0f0' },
+    { icon: TrendingUp, label: 'Avg Rank', value: '156', color: '#10b981', bgColor: '#f0fdf4' },
+    { icon: Clock, label: 'Overall Spent', value: '124hr', color: '#f59e0b', bgColor: '#fffbeb' },
   ];
 
   const todaysTests = [
@@ -607,20 +678,19 @@ export default function Home() {
     },
   ];
 
-  // Add handleClick for quick actions
   const handleClick = (action: string) => {
     switch (action) {
-      case 'mocktest':
-        router.push('/mocktest');
+      case 'practice':
+        router.push('/practice');
         break;
-      case 'answers':
-        router.push('/answers');
+      case 'doubts':
+        router.push('/help');
         break;
-      case 'analytics':
-        router.push('/analytics');
-        break;
-      case 'leaderboard':
+      case 'rewards':
         router.push('/leaderboard');
+        break;
+      case 'refer':
+        router.push('/refer');
         break;
       default:
         break;
@@ -652,7 +722,8 @@ export default function Home() {
         </View>
       </View>
       {/* Main Scrollable Content */}
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingTop: 90 }}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false} >
+        
         {/* Header with Primary Color (stats cards and rest of header) */}
         <View style={styles.header}>
           {/* Stats Cards */}
@@ -673,6 +744,21 @@ export default function Home() {
             ))}
           </ScrollView>
         </View>
+        {/* Subscription Banner */}
+        {showBanner && (
+          <View style={styles.subscriptionBannerMinimal}>
+            <TouchableOpacity style={styles.closeButtonMinimal} onPress={() => setShowBanner(false)}>
+              <Text style={styles.closeButtonTextMinimal}>✕</Text>
+            </TouchableOpacity>
+            <View style={styles.subscriptionBannerLeftMinimal}>
+              <Text style={styles.subscriptionCrownMinimal}>👑</Text>
+            </View>
+            <Text style={styles.subscriptionTitleMinimal}>Go Premium</Text>
+            <TouchableOpacity style={styles.subscribeButtonMinimal} onPress={() => router.push({ pathname: '/subscription' })}>
+              <Text style={styles.subscribeButtonTextMinimal}>Subscribe</Text>
+            </TouchableOpacity>
+          </View>
+        )}
         <View style={styles.content}>
           {/* Today's Tests */}
           <View style={styles.section}>
@@ -699,7 +785,17 @@ export default function Home() {
                         </View>
                       </View>
                     </View>
-                    <TouchableOpacity style={[styles.startButton, { backgroundColor: '#F4A261' }]}> 
+                    <TouchableOpacity 
+                      style={[styles.startButton, { backgroundColor: '#F4A261' }]} 
+                      onPress={() => {
+                        // Extract subject from test title
+                        let subject = '';
+                        if (test.title.toLowerCase().includes('physics')) subject = 'Physics';
+                        else if (test.title.toLowerCase().includes('chemistry')) subject = 'Chemistry';
+                        else if (test.title.toLowerCase().includes('math')) subject = 'Mathematics';
+                        if (subject) router.push(`/practice/lesson-select?subject=${subject}`);
+                      }}
+                    > 
                       <Play size={16} color="#ffffff" />
                     </TouchableOpacity>
                   </View>
@@ -742,7 +838,7 @@ export default function Home() {
 
           {/* Mock Tests & Practice */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Mock Tests & Practice</Text>
+            <Text style={styles.sectionTitle}>Mock Tests</Text>
             <View style={styles.mockTestsList}>
               {todaysTests.map((test, index) => (
                 <View key={index} style={styles.mockTestCard}>
@@ -753,7 +849,29 @@ export default function Home() {
                     <Text style={styles.mockTestTitle}>{test.title}</Text>
                     <Text style={styles.mockTestDetails}>{test.questions} Questions • {test.duration} • {test.difficulty}</Text>
                   </View>
-                  <TouchableOpacity style={styles.mockTestButton}>
+                  <TouchableOpacity 
+                    style={styles.mockTestButton}
+                    onPress={() => {
+                      // Extract subject from test title
+                      let subject = '';
+                      if (test.title.toLowerCase().includes('physics')) subject = 'Physics';
+                      else if (test.title.toLowerCase().includes('chemistry')) subject = 'Chemistry';
+                      else if (test.title.toLowerCase().includes('math')) subject = 'Mathematics';
+                      if (subject) {
+                        router.push({
+                          pathname: '/test/instructions',
+                          params: {
+                            subject,
+                            testType: 'mock',
+                            duration: test.duration,
+                            questions: test.questions,
+                            difficulty: test.difficulty,
+                            title: test.title,
+                          },
+                        });
+                      }
+                    }}
+                  >
                     <Text style={styles.mockTestButtonText}>Start</Text>
                   </TouchableOpacity>
                 </View>
@@ -764,63 +882,31 @@ export default function Home() {
           {/* Quick Actions */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Quick Actions ⚡</Text>
-            <View style={styles.quickActionsGridRedesignedRow}>
-              <View style={styles.quickActionsRow}>
-                <TouchableOpacity
-                  style={styles.quickActionCardRedesigned}
-                  activeOpacity={0.85}
-                  onPress={() => handleClick('mocktest')}
-                >
-                  <View style={[styles.quickActionIconCircleGrid, { backgroundColor: '#3A7CA5' }]}> 
-                    <FileText size={28} color="#fff" />
-                  </View>
-                  <View style={styles.quickActionTextAreaRedesigned}>
-                    <Text style={styles.quickActionCardTextRedesigned}>Mock Test</Text>
-                    <Text style={styles.quickActionCardSubtitle}>Take a new mock test</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.quickActionCardRedesigned}
-                  activeOpacity={0.85}
-                  onPress={() => handleClick('answers')}
-                >
-                  <View style={[styles.quickActionIconCircleGrid, { backgroundColor: '#F4A261' }]}> 
-                    <BookOpen size={28} color="#fff" />
-                  </View>
-                  <View style={styles.quickActionTextAreaRedesigned}>
-                    <Text style={styles.quickActionCardTextRedesigned}>Answers</Text>
-                    <Text style={styles.quickActionCardSubtitle}>Review your answers</Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.quickActionsRow}>
-                <TouchableOpacity
-                  style={styles.quickActionCardRedesigned}
-                  activeOpacity={0.85}
-                  onPress={() => handleClick('analytics')}
-                >
-                  <View style={[styles.quickActionIconCircleGrid, { backgroundColor: '#3A7CA5' }]}> 
-                    <TrendingUp size={28} color="#fff" />
-                  </View>
-                  <View style={styles.quickActionTextAreaRedesigned}>
-                    <Text style={styles.quickActionCardTextRedesigned}>Analytics</Text>
-                    <Text style={styles.quickActionCardSubtitle}>Track your progress</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.quickActionCardRedesigned}
-                  activeOpacity={0.85}
-                  onPress={() => handleClick('leaderboard')}
-                >
-                  <View style={[styles.quickActionIconCircleGrid, { backgroundColor: '#F4A261' }]}> 
-                    <Trophy size={28} color="#fff" />
-                  </View>
-                  <View style={styles.quickActionTextAreaRedesigned}>
-                    <Text style={styles.quickActionCardTextRedesigned}>Leaderboard</Text>
-                    <Text style={styles.quickActionCardSubtitle}>See your rank</Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
+            <View style={styles.quickActionsModernGrid}>
+              <TouchableOpacity style={[styles.quickActionModernCard, { backgroundColor: '#f0f4ff' }]} activeOpacity={0.88} onPress={() => handleClick('practice')}>
+                <View style={[styles.quickActionModernIconCircle, { backgroundColor: '#3A7CA5' }]}>
+                  <BookOpen size={28} color="#fff" />
+                </View>
+                <Text style={styles.quickActionModernText}>Practice</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.quickActionModernCard, { backgroundColor: '#fff0f0' }]} activeOpacity={0.88} onPress={() => handleClick('doubts')}>
+                <View style={[styles.quickActionModernIconCircle, { backgroundColor: '#F4A261' }]}>
+                  <MessageCircle size={28} color="#fff" />
+                </View>
+                <Text style={styles.quickActionModernText}>Doubts</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.quickActionModernCard, { backgroundColor: '#f0fdf4' }]} activeOpacity={0.88} onPress={() => handleClick('rewards')}>
+                <View style={[styles.quickActionModernIconCircle, { backgroundColor: '#10b981' }]}>
+                  <Gift size={28} color="#fff" />
+                </View>
+                <Text style={styles.quickActionModernText}>Ranking</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.quickActionModernCard, { backgroundColor: '#fffbe6' }]} activeOpacity={0.88} onPress={() => handleClick('refer')}>
+                <View style={[styles.quickActionModernIconCircle, { backgroundColor: '#F4A261' }]}>
+                  <UserPlus size={28} color="#fff" />
+                </View>
+                <Text style={styles.quickActionModernText}>Refer & Earn</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>

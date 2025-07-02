@@ -1,12 +1,68 @@
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Dimensions, Switch } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Dimensions, Switch, Image, TextInput, Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { User, Settings, Bell, Trophy, ChartBar as BarChart3, CreditCard, CircleHelp as HelpCircle, LogOut, ChevronRight, Star, Target, Calendar, Award } from 'lucide-react-native';
+import { User, Edit, Bell, Trophy, ChartBar as BarChart3, CreditCard, CircleHelp as HelpCircle, LogOut, ChevronRight, Star, Target, Calendar, Award, BookOpen } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
+import React, { useState, useRef, useEffect } from 'react';
+import { Animated } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
 export default function Profile() {
   const router = useRouter();
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [name, setName] = useState('Arjun Kumar');
+  const [avatar, setAvatar] = useState<string | null>(null);
+  const [newName, setNewName] = useState(name);
+  const [newAvatar, setNewAvatar] = useState<string | null>(avatar);
+  const [notificationEnabled, setNotificationEnabled] = useState(true);
+
+  // Animation for modal
+  const scaleAnim = useRef(new Animated.Value(0.8)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (editModalVisible) {
+      Animated.parallel([
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacityAnim, {
+          toValue: 1,
+          duration: 180,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      scaleAnim.setValue(0.8);
+      opacityAnim.setValue(0);
+    }
+  }, [editModalVisible]);
+
+  const handlePickAvatar = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setNewAvatar(result.assets[0].uri);
+    }
+  };
+
+  const handleSave = () => {
+    setName(newName);
+    setAvatar(newAvatar);
+    setEditModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setNewName(name);
+    setNewAvatar(avatar);
+    setEditModalVisible(false);
+  };
 
   const achievements = [
     { title: '100 Days Streak', icon: Calendar, color: '#ff6b6b', unlocked: true },
@@ -24,67 +80,77 @@ export default function Profile() {
 
   const menuItems = [
     { title: 'Subscription', icon: CreditCard, color: '#667eea', route: '/subscription' },
-    { title: 'Analytics', icon: BarChart3, color: '#10b981', route: '/analytics' },
+    { title: 'Refer & Earn', icon: Star, color: '#f59e0b', route: '/refer' },
     { title: 'Notifications', icon: Bell, color: '#ff6b6b', hasSwitch: true },
-    { title: 'Settings', icon: Settings, color: '#64748b', route: '/settings' },
+
     { title: 'Help & Support', icon: HelpCircle, color: '#f59e0b', route: '/help' },
+    { title: 'Terms & Conditions', icon: BookOpen, color: '#3A7CA5', route: '/terms' },
   ];
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={[styles.header, { backgroundColor: '#3A7CA5' }]}>
-        <View style={styles.profileSection}>
-          <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>AK</Text>
+      <View style={styles.headerSolidWrap}>
+        <View style={styles.headerSolid}>
+          <View style={styles.profileHeaderRow}>
+            <View style={styles.avatarContainerLarge}>
+              {avatar ? (
+                <Image source={{ uri: avatar }} style={styles.avatarLarge} />
+              ) : (
+                <View style={styles.avatarLarge}>
+                  <Text style={styles.avatarTextLarge}>{name.split(' ').map(n => n[0]).join('').toUpperCase()}</Text>
+                </View>
+              )}
             </View>
-            <TouchableOpacity style={styles.editButton}>
-              <Settings size={16} color="#3A7CA5" />
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.name}>Arjun Kumar</Text>
-          <Text style={styles.email}>arjun.kumar@email.com</Text>
-          <View style={styles.subscriptionBadge}>
-            <Star size={16} color="#3A7CA5" />
-            <Text style={styles.subscriptionText}>Premium Member</Text>
-          </View>
-        </View>
-
-        <View style={styles.statsSection}>
-          {stats.map((stat, index) => (
-            <View key={index} style={styles.statItem}>
-              <Text style={styles.statValue}>{stat.value}</Text>
-              <Text style={styles.statLabel}>{stat.label}</Text>
+            <View style={styles.profileDetailsCol}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                <Text style={styles.nameLarge}>{name}</Text>
+                <TouchableOpacity style={styles.editButtonRow} onPress={() => setEditModalVisible(true)}>
+                  <Edit size={18} color="#3A7CA5" />
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.emailLarge}>arjun.kumar@email.com</Text>
+              <View style={styles.subscriptionBadgeRow}>
+                <Star size={16} color="#F4A261" />
+                <Text style={styles.subscriptionTextRow}>Premium Member</Text>
+              </View>
             </View>
-          ))}
+          </View>
         </View>
       </View>
 
+      
+
       <View style={styles.content}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Achievements</Text>
-          <View style={styles.achievementsGrid}>
-            {achievements.map((achievement, index) => (
-              <View key={index} style={[
-                styles.achievementCard,
-                { opacity: achievement.unlocked ? 1 : 0.5 }
-              ]}>
-                <View style={[styles.achievementIcon, { backgroundColor: achievement.color }]}>
-                  <achievement.icon size={24} color="#ffffff" />
-                </View>
-                <Text style={styles.achievementTitle}>{achievement.title}</Text>
-                {achievement.unlocked && (
-                  <Text style={styles.achievementUnlocked}>Unlocked</Text>
-                )}
-              </View>
-            ))}
+
+        {/* Stats Heading */}
+      {/* Stats Grid Below Header */}
+      <Text style={styles.statsHeading}>Your Stats</Text>
+
+      <View style={styles.statsGridWrap}>
+        
+        {stats.map((stat, index) => (
+          <View key={index} style={styles.statGridCard}>
+            <Text style={[styles.statValueRow, { color: stat.color }]}>{stat.value}</Text>
+            <Text style={styles.statLabelRow}>{stat.label}</Text>
           </View>
-        </View>
+        ))}
+      </View>
+     
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account & Settings</Text>
           {menuItems.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.menuItem}>
+            <TouchableOpacity 
+              key={index} 
+              style={styles.menuItem}
+              onPress={() => {
+                if (item.route === '/subscription') router.push('/subscription');
+                else if (item.route === '/refer') router.push('/refer');
+                else if (item.route === '/help') router.push('/help');
+                else if (item.route === '/terms') router.push('/terms');
+                // else if (item.route === '/settings') router.push('/settings');
+              }}
+            >
               <View style={styles.menuLeft}>
                 <View style={[styles.menuIcon, { backgroundColor: item.color }]}>
                   <item.icon size={20} color="#ffffff" />
@@ -93,8 +159,8 @@ export default function Profile() {
               </View>
               {item.hasSwitch ? (
                 <Switch 
-                  value={true}
-                  onValueChange={() => {}}
+                  value={notificationEnabled}
+                  onValueChange={setNotificationEnabled}
                   trackColor={{ false: '#e2e8f0', true: '#667eea' }}
                   thumbColor="#ffffff"
                 />
@@ -148,6 +214,46 @@ export default function Profile() {
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Edit Modal */}
+      <Modal
+        visible={editModalVisible}
+        animationType="fade"
+        transparent
+        onRequestClose={handleCancel}
+      >
+        <View style={styles.modalOverlay}>
+          <Animated.View style={[styles.editModalCard, { transform: [{ scale: scaleAnim }], opacity: opacityAnim }] }>
+            <Text style={styles.editModalTitle}>Edit Profile</Text>
+            <TouchableOpacity onPress={handlePickAvatar} style={{ alignSelf: 'center', marginBottom: 18 }}>
+              {newAvatar ? (
+                <Image source={{ uri: newAvatar }} style={[styles.avatarLarge, { borderWidth: 2, borderColor: '#3A7CA5' }]} />
+              ) : (
+                <View style={[styles.avatarLarge, { borderWidth: 2, borderColor: '#3A7CA5' }] }>
+                  <Text style={styles.avatarTextLarge}>{newName.split(' ').map(n => n[0]).join('').toUpperCase()}</Text>
+                </View>
+              )}
+              <Text style={{ color: '#3A7CA5', marginTop: 6, fontWeight: 'bold', textAlign: 'center' }}>Change Photo</Text>
+            </TouchableOpacity>
+            <TextInput
+              style={[styles.nameLarge, { backgroundColor: '#fff', color: '#222', borderRadius: 8, paddingHorizontal: 10, marginBottom: 12, borderWidth: 1, borderColor: '#e5e7eb', minWidth: 120 }]}
+              value={newName}
+              onChangeText={setNewName}
+              placeholder="Enter your name"
+              placeholderTextColor="#aaa"
+              textAlign="center"
+            />
+            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 16 }}>
+              <TouchableOpacity style={{ backgroundColor: '#3A7CA5', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 24, marginTop: 4 }} onPress={handleSave}>
+                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Save</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{ backgroundColor: '#e5e7eb', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 24, marginTop: 4 }} onPress={handleCancel}>
+                <Text style={{ color: '#3A7CA5', fontWeight: 'bold' }}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -157,86 +263,123 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8fafc',
   },
-  header: {
+  headerSolidWrap: {
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    overflow: 'hidden',
+    marginBottom: 0,
+  },
+  headerSolid: {
+    backgroundColor: '#3A7CA5',
     paddingTop: 60,
-    paddingBottom: 32,
-    paddingHorizontal: 24,
+    paddingBottom: 20,
+    paddingHorizontal: 0,
+    minHeight: 160,
+    flexDirection: 'column',
+    justifyContent: 'center',
   },
-  profileSection: {
+  profileHeaderRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 32,
+    paddingHorizontal: 24,
+    paddingTop: 18,
+    paddingBottom: 10,
   },
-  avatarContainer: {
-    position: 'relative',
-    marginBottom: 16,
+  avatarContainerLarge: {
+    marginRight: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  avatar: {
+  avatarLarge: {
     width: 80,
     height: 80,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 40,
+    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  avatarText: {
+  avatarTextLarge: {
     fontSize: 32,
-    fontFamily: 'Inter-Bold',
-    color: '#ffffff',
+    fontWeight: 'bold',
+    color: '#3A7CA5',
   },
-  editButton: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: 32,
-    height: 32,
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    alignItems: 'center',
+  profileDetailsCol: {
+    flex: 1,
     justifyContent: 'center',
   },
-  name: {
-    fontSize: 24,
-    fontFamily: 'Inter-Bold',
-    color: '#ffffff',
+  nameLarge: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginRight: 8,
+  },
+  editButtonRow: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 4,
+    marginLeft: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#3A7CA5',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.10,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  emailLarge: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.85)',
     marginBottom: 4,
   },
-  email: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    color: 'rgba(255, 255, 255, 0.8)',
-    marginBottom: 12,
-  },
-  subscriptionBadge: {
+  subscriptionBadgeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginTop: 2,
+    alignSelf: 'flex-start',
   },
-  subscriptionText: {
+  subscriptionTextRow: {
     fontSize: 12,
-    fontFamily: 'Inter-Bold',
-    color: '#ffffff',
+    color: '#fff',
     marginLeft: 4,
+    fontWeight: 'bold',
   },
-  statsSection: {
+  statsGridWrap: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 18,
   },
-  statItem: {
+  statGridCard: {
+    width: '47%',
+    backgroundColor: '#fff',
+    borderRadius: 16,
     alignItems: 'center',
+    paddingVertical: 18,
+    paddingHorizontal: 8,
+    marginBottom: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  statValue: {
-    fontSize: 20,
-    fontFamily: 'Inter-Bold',
-    color: '#ffffff',
+  statValueRow: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 2,
   },
-  statLabel: {
-    fontSize: 10,
-    fontFamily: 'Inter-Regular',
-    color: 'rgba(255, 255, 255, 0.8)',
-    marginTop: 4,
+  statLabelRow: {
+    fontSize: 11,
+    color: '#64748b',
     textAlign: 'center',
   },
   content: {
@@ -417,7 +560,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    // backgroundColor: '#F4A261',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
@@ -428,5 +570,35 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-SemiBold',
     color: '#F4A261',
     marginLeft: 8,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.18)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  editModalCard: {
+    width: '88%',
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  editModalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#3A7CA5',
+    marginBottom: 18,
+  },
+  statsHeading: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1e293b',
+    marginBottom: 8,
   },
 });
