@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, PanResponder } from 'react-native';
 import { useRouter } from 'expo-router';
 
 const { width, height } = Dimensions.get('window');
@@ -26,14 +26,31 @@ export default function Welcome() {
   const [current, setCurrent] = useState(0);
   const router = useRouter();
 
+  // PanResponder for swipe gestures
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (evt, gestureState) => {
+        // Only respond to horizontal swipes
+        return Math.abs(gestureState.dx) > 20 && Math.abs(gestureState.dy) < 20;
+      },
+      onPanResponderRelease: (evt, gestureState) => {
+        if (gestureState.dx < -50) {
+          setCurrent(prev => (prev < slides.length - 1 ? prev + 1 : prev));
+        } else if (gestureState.dx > 50) {
+          setCurrent(prev => (prev > 0 ? prev - 1 : prev));
+        }
+      },
+    })
+  ).current;
+
   const handleNext = () => {
     if (current < slides.length - 1) setCurrent(current + 1);
-    else router.push('/auth/register');
+    else router.push('/auth/login');
   };
-  const handleSkip = () => router.push('/auth/register');
+  const handleSkip = () => router.push('/auth/login');
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} {...panResponder.panHandlers}>
       <View style={styles.imageWrap}>
         <Image source={slides[current].image} style={styles.image} resizeMode="cover" />
       </View>

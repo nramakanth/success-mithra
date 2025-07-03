@@ -679,22 +679,10 @@ export default function Home() {
   ];
 
   const handleClick = (action: string) => {
-    switch (action) {
-      case 'practice':
-        router.push('/practice');
-        break;
-      case 'doubts':
-        router.push('/help');
-        break;
-      case 'rewards':
-        router.push('/leaderboard');
-        break;
-      case 'refer':
-        router.push('/refer');
-        break;
-      default:
-        break;
-    }
+    if (action === 'practice') router.push('/practice/subject-select');
+    else if (action === 'doubts') router.push('/help');
+    else if (action === 'progress') router.push('/insights');
+    else if (action === 'refer') router.push('/refer');
   };
 
   const handleNotificationPress = () => {
@@ -895,11 +883,11 @@ export default function Home() {
                 </View>
                 <Text style={styles.quickActionModernText}>Doubts</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.quickActionModernCard, { backgroundColor: '#f0fdf4' }]} activeOpacity={0.88} onPress={() => handleClick('rewards')}>
-                <View style={[styles.quickActionModernIconCircle, { backgroundColor: '#10b981' }]}>
-                  <Gift size={28} color="#fff" />
+              <TouchableOpacity style={[styles.quickActionModernCard, { backgroundColor: '#e0f2fe' }]} activeOpacity={0.88} onPress={() => handleClick('progress')}>
+                <View style={[styles.quickActionModernIconCircle, { backgroundColor: '#3A7CA5' }]}> 
+                  <TrendingUp size={28} color="#fff" />
                 </View>
-                <Text style={styles.quickActionModernText}>Ranking</Text>
+                <Text style={styles.quickActionModernText}>Progress</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.quickActionModernCard, { backgroundColor: '#fffbe6' }]} activeOpacity={0.88} onPress={() => handleClick('refer')}>
                 <View style={[styles.quickActionModernIconCircle, { backgroundColor: '#F4A261' }]}>

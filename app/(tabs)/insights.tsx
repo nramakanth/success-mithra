@@ -178,6 +178,25 @@ export default function Insights() {
       <View style={styles.topicSectionModern}>
         <Text style={styles.topicSectionTitle}>Your Key Topics</Text>
         <View style={styles.topicCardsColumn}>
+            {/* Weakest Topics Card */}
+            <View style={[styles.topicCardModern, { borderColor: '#ef4444', marginBottom: 16 }]}> 
+            <View style={styles.topicCardHeader}><TrendingDown size={22} color="#ef4444" /><Text style={[styles.topicCardTitle, { color: '#ef4444' }]}>Weakest Topics</Text></View>
+            {Object.entries(weakestTopics).map(([subject, topics]) => (
+              <View key={subject} style={styles.topicSubjectRow}>
+                <Text style={styles.topicSubjectLabel}>{subject}</Text>
+                <View style={styles.topicBadgesRow}>
+                  {topics.map(topic => (
+                    <View key={topic} style={styles.topicBadge}>
+                      <Text style={styles.topicBadgeText}>{topic}</Text>
+                      <TouchableOpacity style={styles.topicTestBtn} onPress={handleTakeTestScroll}>
+                        <Text style={styles.topicTestBtnText}>Take Test</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            ))}
+          </View>
           {/* Best Topics Card */}
           <View style={[styles.topicCardModern, { borderColor: '#10b981', marginBottom: 16 }]}> 
             <View style={styles.topicCardHeader}><Award size={22} color="#10b981" /><Text style={[styles.topicCardTitle, { color: '#10b981' }]}>Best Topics</Text></View>
@@ -197,25 +216,7 @@ export default function Insights() {
               </View>
             ))}
           </View>
-          {/* Weakest Topics Card */}
-          <View style={[styles.topicCardModern, { borderColor: '#ef4444', marginBottom: 16 }]}> 
-            <View style={styles.topicCardHeader}><TrendingDown size={22} color="#ef4444" /><Text style={[styles.topicCardTitle, { color: '#ef4444' }]}>Weakest Topics</Text></View>
-            {Object.entries(weakestTopics).map(([subject, topics]) => (
-              <View key={subject} style={styles.topicSubjectRow}>
-                <Text style={styles.topicSubjectLabel}>{subject}</Text>
-                <View style={styles.topicBadgesRow}>
-                  {topics.map(topic => (
-                    <View key={topic} style={styles.topicBadge}>
-                      <Text style={styles.topicBadgeText}>{topic}</Text>
-                      <TouchableOpacity style={styles.topicTestBtn} onPress={handleTakeTestScroll}>
-                        <Text style={styles.topicTestBtnText}>Take Test</Text>
-                      </TouchableOpacity>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            ))}
-          </View>
+        
           {/* Most Improved Topics Card */}
           <View style={[styles.topicCardModern, { borderColor: '#10b981' }]}> 
             <View style={styles.topicCardHeader}><TrendingUp size={22} color="#10b981" /><Text style={[styles.topicCardTitle, { color: '#10b981' }]}>Most Improved</Text></View>

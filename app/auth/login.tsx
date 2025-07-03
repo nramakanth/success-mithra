@@ -151,18 +151,25 @@ export default function Login() {
               <Text style={styles.dividerText}>or</Text>
               <View style={styles.dividerLine} />
             </View>
-            <TouchableOpacity style={styles.googleButton}>
+            <TouchableOpacity style={styles.googleButton} onPress={() => router.push('/auth/register')}>
               <AntDesign name="google" size={22} color="#3A7CA5" style={styles.googleIcon} />
-              <Text style={styles.googleText}>Continue with Google</Text>
+              <Text style={styles.googleText}>Continue with Gmail</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.appleButton} onPress={() => router.push('/auth/register')}>
+              <AntDesign name="apple1" size={22} color="#3A7CA5" style={styles.googleIcon} />
+              <Text style={styles.googleText}>Continue with Apple</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.manualButton} onPress={() => router.push('/auth/register-details')}>
+              <Text style={styles.manualButtonText}>Create Account Manually</Text>
             </TouchableOpacity>
           </View>
           {/* Footer */}
-          <View style={styles.footer}>
+          {/* <View style={styles.footer}>
             <Text style={styles.footerText}>Don't have an account? </Text>
             <TouchableOpacity onPress={() => router.push('/auth/register')}>
               <Text style={styles.signUpText}>Sign Up</Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
         </View>
       </ScrollView>
       {/* OTP Modal */}
@@ -354,19 +361,26 @@ const styles = StyleSheet.create({
   googleButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 16,
-    paddingVertical: 14,
-    paddingHorizontal: 18,
-    marginBottom: 8,
-    width: '100%',
     backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 2,
-    elevation: 1,
+    borderWidth: 1,
+    borderColor: '#3A7CA5',
+    borderRadius: 24,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    marginBottom: 16,
+    marginTop: 8,
+    justifyContent: 'center',
+  },
+  appleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#3A7CA5',
+    borderRadius: 24,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    marginBottom: 16,
     justifyContent: 'center',
   },
   googleIcon: {
@@ -498,6 +512,23 @@ const styles = StyleSheet.create({
     color: '#F4A261',
     fontSize: 15,
     fontFamily: 'Inter-Bold',
+    textAlign: 'center',
+  },
+  manualButton: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#3A7CA5',
+    borderRadius: 24,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    marginBottom: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  manualButtonText: {
+    color: '#3A7CA5',
+    fontSize: 16,
+    fontWeight: 'bold',
     textAlign: 'center',
   },
 });

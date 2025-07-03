@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Dimensions } from 'react-native';
+import { useState, useRef } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Dimensions, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { User, Phone, Mail, Lock, Eye, EyeOff, ArrowRight, ChevronLeft } from 'lucide-react-native';
 
@@ -17,6 +17,10 @@ export default function RegisterDetails() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [agreed, setAgreed] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otp, setOtp] = useState(['', '', '', '']);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const otpInputRefs = useRef<Array<TextInput | null>>([]);
   const router = useRouter();
 
   const handleRegister = async () => {
@@ -27,8 +31,39 @@ export default function RegisterDetails() {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-      // Do not redirect to tabs here. Only letus-details will be shown after registration.
+      setShowOtpModal(true);
     }, 1500);
+  };
+
+  const handleOTPChange = (value: string, index: number) => {
+    const newOtp = [...otp];
+    newOtp[index] = value.replace(/[^0-9]/g, '').slice(0, 1);
+    setOtp(newOtp);
+    if (value && index < 3) {
+      otpInputRefs.current[index + 1]?.focus();
+    }
+    if (newOtp.every(digit => digit !== '') && newOtp.join('').length === 4) {
+      handleVerifyOTP(newOtp.join(''));
+    }
+  };
+
+  const handleOTPKeyPress = (e: { nativeEvent: { key: string } }, index: number) => {
+    if (e.nativeEvent.key === 'Backspace' && otp[index] === '' && index > 0) {
+      otpInputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleVerifyOTP = async (otpValue: string) => {
+    if ((otpValue || otp.join('')).length !== 4) {
+      alert('Please enter the complete 4-digit OTP');
+      return;
+    }
+    setOtpLoading(true);
+    setTimeout(() => {
+      setOtpLoading(false);
+      setShowOtpModal(false);
+      router.replace('/auth/letus-details');
+    }, 1200);
   };
 
   return (
@@ -141,10 +176,7 @@ export default function RegisterDetails() {
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.registerButton, !agreed && { opacity: 0.6 }]}
-              onPress={async () => {
-                await handleRegister();
-                router.replace('/auth/letus-details');
-              }}
+              onPress={handleRegister}
               disabled={isLoading || !agreed}
             >
               <Text style={styles.registerText}>{isLoading ? 'Creating Account...' : 'Create Account'}</Text>
@@ -163,6 +195,42 @@ export default function RegisterDetails() {
           </Text> */}
         </View>
       </ScrollView>
+      {/* OTP Modal */}
+      <Modal
+        visible={showOtpModal}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setShowOtpModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.otpModalCard}>
+            <Text style={styles.otpTitle}>Enter Verification Code</Text>
+            <Text style={styles.otpSubtitle}>We've sent a 4-digit code to your mobile number</Text>
+            <View style={styles.otpContainer}>
+              {otp.map((digit, index) => (
+                <TextInput
+                  key={index}
+                  ref={ref => { otpInputRefs.current[index] = ref; }}
+                  style={styles.otpInput}
+                  value={digit}
+                  onChangeText={value => handleOTPChange(value, index)}
+                  onKeyPress={e => handleOTPKeyPress(e, index)}
+                  keyboardType="numeric"
+                  maxLength={1}
+                  textAlign="center"
+                />
+              ))}
+            </View>
+            <TouchableOpacity
+              style={styles.verifyButton}
+              onPress={() => handleVerifyOTP(otp.join(''))}
+              disabled={otpLoading || otp.join('').length !== 4}
+            >
+              <Text style={styles.verifyButtonText}>{otpLoading ? 'Verifying...' : 'Verify'}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       {/* Back button floating */}
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <ChevronLeft size={26} color="#3A7CA5" />
@@ -362,5 +430,64 @@ const styles = StyleSheet.create({
     color: '#F4A261',
     textDecorationLine: 'underline',
     fontFamily: 'Inter-Bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  otpModalCard: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 24,
+    alignItems: 'center',
+    width: 300,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  otpTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#3A7CA5',
+  },
+  otpSubtitle: {
+    fontSize: 14,
+    color: '#444',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  otpContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
+  otpInput: {
+    width: 40,
+    height: 48,
+    borderWidth: 1,
+    borderColor: '#3A7CA5',
+    borderRadius: 8,
+    marginHorizontal: 6,
+    fontSize: 20,
+    textAlign: 'center',
+    color: '#222',
+    backgroundColor: '#F4F8FB',
+  },
+  verifyButton: {
+    backgroundColor: '#F4A261',
+    borderRadius: 24,
+    paddingVertical: 12,
+    paddingHorizontal: 40,
+    alignItems: 'center',
+  },
+  verifyButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 }); 

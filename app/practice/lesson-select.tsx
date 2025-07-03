@@ -55,7 +55,7 @@ export default function LessonSelect() {
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <ChevronLeft size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Select Lessons</Text>
+        <Text style={styles.headerTitle}>Select Chapters</Text>
         <Text style={styles.headerSubtitle}>{subject}</Text>
       </View>
 

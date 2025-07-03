@@ -194,6 +194,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8fafc',
+    
   },
   header: {
     paddingTop: 60,
@@ -262,7 +263,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   practiceTitle: {
-    fontSize: 16,
+    fontSize: 18,
      
     color: '#fff',
     marginBottom: 2,
