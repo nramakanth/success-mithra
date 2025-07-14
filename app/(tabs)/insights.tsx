@@ -219,7 +219,7 @@ export default function Insights() {
         
           {/* Most Improved Topics Card */}
           <View style={[styles.topicCardModern, { borderColor: '#10b981' }]}> 
-            <View style={styles.topicCardHeader}><TrendingUp size={22} color="#10b981" /><Text style={[styles.topicCardTitle, { color: '#10b981' }]}>Most Improved</Text></View>
+            <View style={styles.topicCardHeader}><TrendingUp size={22} color="#10b981" /><Text style={[styles.topicCardTitle, { color: '#10b981' }]}>Focus Needed</Text></View>
             {Object.entries(improvedTopics).map(([subject, topics]) => (
               <View key={subject} style={styles.topicSubjectRow}>
                 <Text style={styles.topicSubjectLabel}>{subject}</Text>

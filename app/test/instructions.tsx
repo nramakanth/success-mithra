@@ -117,7 +117,7 @@ export default function TestInstructions() {
           {isMulti ? (
             <Text style={styles.headerSubtitle}>You will take: {subjectList.join(', ')}</Text>
           ) : (
-            <Text style={styles.headerSubtitle}>{testType}{difficulty ? ` • ${difficulty}` : ''}</Text>
+            <Text style={styles.headerSubtitle}>{testType}</Text>
           )}
         </View>
       </View>
@@ -147,11 +147,6 @@ export default function TestInstructions() {
             <View style={styles.testInfoItem}>
               <Text style={styles.testInfoLabel}>Questions</Text>
               <Text style={styles.testInfoValue}>{getQuestionsString(questions)}</Text>
-            </View>
-            <View style={styles.divider} />
-            <View style={styles.testInfoItem}>
-              <Text style={styles.testInfoLabel}>Difficulty</Text>
-              <Text style={styles.testInfoValue}>{difficulty}</Text>
             </View>
             <View style={styles.divider} />
             <View style={styles.testInfoItem}>

@@ -119,7 +119,7 @@ export default function Tests() {
     { label: 'Tests Taken', value: '45', color: '#3A7CA5' },
     { label: 'Best Score', value: '92%', color: 'rgba(58, 124, 165, 0.7)' },
     // { label: 'Avg Rank', value: '156', color: 'rgba(58, 124, 165, 0.5)' },
-    { label: 'Study Hours', value: '124h', color: 'rgba(58, 124, 165, 0.3)' },
+    { label: 'Study Hours', value: '124h', color: '#3A7CA5' },
   ];
 
   // Helper to navigate to instructions
@@ -177,10 +177,6 @@ export default function Tests() {
                         <FileText size={14} color="rgba(255, 255, 255, 0.8)" />
                         <Text style={styles.detailText}>{test.questions} Questions</Text>
                       </View>
-                      <View style={styles.detailItem}>
-                        <BarChart3 size={14} color="rgba(255, 255, 255, 0.8)" />
-                        <Text style={styles.detailText}>{test.difficulty}</Text>
-                      </View>
                     </View>
                     {test.attempted && (
                       <Text style={styles.scoreText}>Score: {test.score}/30</Text>
@@ -199,7 +195,7 @@ export default function Tests() {
 
         {/* Combined Test */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Combined Test (All Subjects)</Text>
+          <Text style={styles.sectionTitle}>JEE Simulation (All Subjects)</Text>
           <TouchableOpacity style={styles.testCard} onPress={() => goToInstructions(combinedTest)}>
             <View style={styles.testContent}>
               <View style={styles.testLeft}>
@@ -214,10 +210,6 @@ export default function Tests() {
                     <View style={styles.detailItem}>
                       <FileText size={14} color="rgba(255, 255, 255, 0.8)" />
                       <Text style={styles.detailText}>{combinedTest.questions} Questions</Text>
-                    </View>
-                    <View style={styles.detailItem}>
-                      <BarChart3 size={14} color="rgba(255, 255, 255, 0.8)" />
-                      <Text style={styles.detailText}>{combinedTest.difficulty}</Text>
                     </View>
                   </View>
                 </View>
@@ -249,10 +241,6 @@ export default function Tests() {
                       <View style={styles.detailItem}>
                         <FileText size={14} color="rgba(255, 255, 255, 0.8)" />
                         <Text style={styles.detailText}>{test.questions} Questions</Text>
-                      </View>
-                      <View style={styles.detailItem}>
-                        <BarChart3 size={14} color="rgba(255, 255, 255, 0.8)" />
-                        <Text style={styles.detailText}>Previous Year</Text>
                       </View>
                     </View>
                   </View>
@@ -358,14 +346,16 @@ const styles = StyleSheet.create({
   },
   statsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
   },
   statCard: {
     backgroundColor: '#ffffff',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
-    width: (width - 72) / 4,
+    width: (width - 64) / 3,
+    minWidth: 90,
+    maxWidth: 140,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,

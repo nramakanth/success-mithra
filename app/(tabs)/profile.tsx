@@ -10,6 +10,7 @@ const { width } = Dimensions.get('window');
 
 export default function Profile() {
   const router = useRouter();
+  const [selectedExam, setSelectedExam] = useState<'JEE' | 'EAMCET'>('JEE');
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [name, setName] = useState('Arjun Kumar');
   const [avatar, setAvatar] = useState<string | null>(null);
@@ -103,7 +104,7 @@ export default function Profile() {
             </View>
             <View style={styles.profileDetailsCol}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-                <Text style={styles.nameLarge}>{name}</Text>
+                <Text style={styles.nameLarge}>{name} <Text style={{ color: '#fff', fontSize: 15 }}>({selectedExam})</Text></Text>
                 <TouchableOpacity style={styles.editButtonRow} onPress={() => setEditModalVisible(true)}>
                   <Edit size={18} color="#3A7CA5" />
                 </TouchableOpacity>
@@ -139,6 +140,81 @@ export default function Profile() {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account & Settings</Text>
+          {/* Modern Segmented Control with Sliding Indicator */}
+          <View style={{ alignItems: 'center', marginBottom: 28, marginTop: 8 }}>
+            <View
+              style={{
+                width: 220,
+                height: 44,
+                backgroundColor: '#e0e7ef',
+                borderRadius: 22,
+                flexDirection: 'row',
+                alignItems: 'center',
+                position: 'relative',
+                justifyContent: 'space-between',
+                padding: 4,
+              }}
+            >
+              {/* Sliding indicator */}
+              <View
+                style={{
+                  position: 'absolute',
+                  top: 4,
+                  left: selectedExam === 'JEE' ? 4 : 110,
+                  width: 106,
+                  height: 36,
+                  backgroundColor: '#fff',
+                  borderRadius: 18,
+                  elevation: 2,
+                  shadowColor: '#3A7CA5',
+                  shadowOpacity: 0.08,
+                  shadowRadius: 4,
+                  shadowOffset: { width: 0, height: 2 },
+                  transitionDuration: '200ms',
+                }}
+              />
+              <TouchableOpacity
+                style={{
+                  width: 106,
+                  height: 36,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 1,
+                }}
+                onPress={() => setSelectedExam('JEE')}
+                activeOpacity={0.85}
+              >
+                <Text style={{
+                  color: selectedExam === 'JEE' ? '#3A7CA5' : '#64748b',
+                  fontWeight: 'bold',
+                  fontSize: 17,
+                  letterSpacing: 1,
+                }}>
+                  JEE
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  width: 106,
+                  height: 36,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 1,
+                }}
+                onPress={() => setSelectedExam('EAMCET')}
+                activeOpacity={0.85}
+              >
+                <Text style={{
+                  color: selectedExam === 'EAMCET' ? '#3A7CA5' : '#64748b',
+                  fontWeight: 'bold',
+                  fontSize: 17,
+                  letterSpacing: 1,
+                }}>
+                  EAMCET
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
           {menuItems.map((item, index) => (
             <TouchableOpacity 
               key={index} 
@@ -152,7 +228,7 @@ export default function Profile() {
               }}
             >
               <View style={styles.menuLeft}>
-                <View style={[styles.menuIcon, { backgroundColor: item.color }]}>
+                <View style={[styles.menuIcon, { backgroundColor: item.color }]}> 
                   <item.icon size={20} color="#ffffff" />
                 </View>
                 <Text style={styles.menuTitle}>{item.title}</Text>
