@@ -118,7 +118,7 @@ export default function Tests() {
   const stats = [
     { label: 'Tests Taken', value: '45', color: '#3A7CA5' },
     { label: 'Best Score', value: '92%', color: 'rgba(58, 124, 165, 0.7)' },
-    { label: 'Avg Rank', value: '156', color: 'rgba(58, 124, 165, 0.5)' },
+    // { label: 'Avg Rank', value: '156', color: 'rgba(58, 124, 165, 0.5)' },
     { label: 'Study Hours', value: '124h', color: 'rgba(58, 124, 165, 0.3)' },
   ];
 
@@ -299,7 +299,7 @@ export default function Tests() {
                 <View style={styles.historyRight}>
                   <Text style={styles.historyScore}>{test.score}</Text>
                   <View style={styles.historyRank}>
-                    <Trophy size={16} color="#3A7CA5" />
+                    {/* <Trophy size={16} color="#3A7CA5" /> */}
                     <Text style={styles.rankText}>#{test.rank}</Text>
                   </View>
                   {/* <ChevronRight size={20} color="#94a3b8" /> */}

@@ -18,6 +18,7 @@ export default function Login() {
   const [otpLoading, setOtpLoading] = useState(false);
   const [timer, setTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
+  const [mobileError, setMobileError] = useState('');
   const inputRefs = useRef<Array<RNTextInput | null>>([]);
   const router = useRouter();
   const otpScale = useRef(new Animated.Value(0.8)).current;
@@ -63,6 +64,12 @@ export default function Login() {
   }, [showOtpModal]);
 
   const handleLogin = async () => {
+    // Validate mobile number
+    if (!/^\d{10}$/.test(mobile)) {
+      setMobileError('Please enter a valid 10-digit mobile number');
+      return;
+    }
+    setMobileError('');
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
@@ -133,11 +140,19 @@ export default function Login() {
                 placeholder="Mobile Number"
                 placeholderTextColor="#A0A0A0"
                 value={mobile}
-                onChangeText={setMobile}
+                onChangeText={text => {
+                  // Only allow digits and max 10 characters
+                  const filtered = text.replace(/[^\d]/g, '').slice(0, 10);
+                  setMobile(filtered);
+                  if (mobileError) setMobileError('');
+                }}
                 keyboardType="phone-pad"
                 maxLength={10}
               />
             </View>
+            {mobileError ? (
+              <Text style={{ color: '#ff6b6b', marginBottom: 8, marginLeft: 4, fontSize: 13 }}>{mobileError}</Text>
+            ) : null}
             <TouchableOpacity
               style={styles.loginButton}
               onPress={handleLogin}
@@ -151,16 +166,16 @@ export default function Login() {
               <Text style={styles.dividerText}>or</Text>
               <View style={styles.dividerLine} />
             </View>
-            <TouchableOpacity style={styles.googleButton} onPress={() => router.push('/auth/register')}>
+            {/* <TouchableOpacity style={styles.googleButton} onPress={() => router.push('/auth/register')}>
               <AntDesign name="google" size={22} color="#3A7CA5" style={styles.googleIcon} />
-              <Text style={styles.googleText}>Continue with Gmail</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.appleButton} onPress={() => router.push('/auth/register')}>
+              <Text style={styles.googleText}>Continue with Google</Text>
+            </TouchableOpacity> */}
+            {/* <TouchableOpacity style={styles.appleButton} onPress={() => router.push('/auth/register')}>
               <AntDesign name="apple1" size={22} color="#3A7CA5" style={styles.googleIcon} />
               <Text style={styles.googleText}>Continue with Apple</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity style={styles.manualButton} onPress={() => router.push('/auth/register-details')}>
-              <Text style={styles.manualButtonText}>Create Account Manually</Text>
+              <Text style={styles.manualButtonText}>Create Account </Text>
             </TouchableOpacity>
           </View>
           {/* Footer */}

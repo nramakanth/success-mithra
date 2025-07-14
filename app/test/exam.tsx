@@ -4,6 +4,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { ChevronLeft, Clock, CheckCircle, XCircle, Eye } from 'lucide-react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { WebView } from 'react-native-webview';
+import Video from 'react-native-video';
 
 const BRAND_COLORS = {
   primary: '#3A7CA5',
@@ -57,8 +59,26 @@ function randomImage() {
   return SAMPLE_IMAGES[Math.floor(Math.random() * SAMPLE_IMAGES.length)];
 }
 
+// Add default explanation fields to all questions in mock data
+const DEFAULT_TEXT_EXPLANATION = 'This is a sample explanation for the question. Review the concept for more details.';
+const DEFAULT_VIDEO_EXPLANATION = 'https://www.youtube.com/embed/dQw4w9WgXcQ';
+const DEFAULT_VIDEO_URL = 'https://www.w3schools.com/html/mov_bbb.mp4';
+const DEFAULT_IMAGE_URL = 'https://www.w3schools.com/w3images/lights.jpg';
+
+function addExplanationsToQuestions(questions: any[]) {
+  return questions.map((q: any) => ({
+    ...q,
+    textExplanation: q.textExplanation || DEFAULT_TEXT_EXPLANATION,
+    videoExplanation: q.videoExplanation || DEFAULT_VIDEO_EXPLANATION,
+    showVideo: typeof q.showVideo === 'boolean' ? q.showVideo : true,
+    videoUrl: q.videoUrl || DEFAULT_VIDEO_URL,
+    imageUrl: q.imageUrl || DEFAULT_IMAGE_URL,
+    options: q.options ? q.options.map((opt: any) => ({ ...opt })) : [],
+  }));
+}
+
 // Physics questions with proper content
-const PHYSICS_QUESTIONS = [
+const PHYSICS_QUESTIONS = addExplanationsToQuestions([
   {
     question: "What is the SI unit of force?",
     image: null,
@@ -159,10 +179,10 @@ const PHYSICS_QUESTIONS = [
       { text: "1 × 10⁸ m/s", isCorrect: false, image: null },
     ]
   }
-];
+]);
 
 // Mathematics questions
-const MATH_QUESTIONS = [
+const MATH_QUESTIONS = addExplanationsToQuestions([
   {
     question: "What is the value of π (pi) to two decimal places?",
     image: null,
@@ -213,10 +233,10 @@ const MATH_QUESTIONS = [
       { text: "270°", isCorrect: false, image: null },
     ]
   },
-];
+]);
 
 // Chemistry questions
-const CHEMISTRY_QUESTIONS = [
+const CHEMISTRY_QUESTIONS = addExplanationsToQuestions([
   {
     question: "What is the chemical symbol for water?",
     image: null,
@@ -267,19 +287,177 @@ const CHEMISTRY_QUESTIONS = [
       { text: "16", isCorrect: false, image: null },
     ]
   },
-];
+]);
+
+// Define raw data for botany and zoology
+const BOTANY_QUESTIONS_RAW = {
+  "Plant Physiology": [
+    {
+      question: "What is the main product of photosynthesis?",
+      image: null,
+      options: [
+        { text: "Glucose", isCorrect: true, image: null },
+        { text: "Oxygen", isCorrect: false, image: null },
+        { text: "Carbon dioxide", isCorrect: false, image: null },
+        { text: "Water", isCorrect: false, image: null },
+      ]
+    },
+    {
+      question: "Which organelle is responsible for photosynthesis?",
+      image: null,
+      options: [
+        { text: "Chloroplast", isCorrect: true, image: null },
+        { text: "Mitochondria", isCorrect: false, image: null },
+        { text: "Nucleus", isCorrect: false, image: null },
+        { text: "Ribosome", isCorrect: false, image: null },
+      ]
+    }
+  ],
+  "Genetics": [
+    {
+      question: "Who is known as the father of genetics?",
+      image: null,
+      options: [
+        { text: "Gregor Mendel", isCorrect: true, image: null },
+        { text: "Charles Darwin", isCorrect: false, image: null },
+        { text: "Watson & Crick", isCorrect: false, image: null },
+        { text: "Linnaeus", isCorrect: false, image: null },
+      ]
+    },
+    {
+      question: "What is the shape of DNA?",
+      image: null,
+      options: [
+        { text: "Double helix", isCorrect: true, image: null },
+        { text: "Single strand", isCorrect: false, image: null },
+        { text: "Triple helix", isCorrect: false, image: null },
+        { text: "Circle", isCorrect: false, image: null },
+      ]
+    }
+  ],
+  "Ecology": [
+    {
+      question: "What is a group of the same species living together called?",
+      image: null,
+      options: [
+        { text: "Population", isCorrect: true, image: null },
+        { text: "Community", isCorrect: false, image: null },
+        { text: "Ecosystem", isCorrect: false, image: null },
+        { text: "Biome", isCorrect: false, image: null },
+      ]
+    }
+  ],
+  "Morphology": [
+    {
+      question: "Which part of the plant anchors it to the soil?",
+      image: null,
+      options: [
+        { text: "Root", isCorrect: true, image: null },
+        { text: "Stem", isCorrect: false, image: null },
+        { text: "Leaf", isCorrect: false, image: null },
+        { text: "Flower", isCorrect: false, image: null },
+      ]
+    }
+  ],
+  "Anatomy": [
+    {
+      question: "What tissue transports water in plants?",
+      image: null,
+      options: [
+        { text: "Xylem", isCorrect: true, image: null },
+        { text: "Phloem", isCorrect: false, image: null },
+        { text: "Cortex", isCorrect: false, image: null },
+        { text: "Epidermis", isCorrect: false, image: null },
+      ]
+    }
+  ]
+};
+const ZOOLOGY_QUESTIONS_RAW = {
+  "Human Physiology": [
+    {
+      question: "Which organ pumps blood in the human body?",
+      image: null,
+      options: [
+        { text: "Heart", isCorrect: true, image: null },
+        { text: "Liver", isCorrect: false, image: null },
+        { text: "Lung", isCorrect: false, image: null },
+        { text: "Kidney", isCorrect: false, image: null },
+      ]
+    }
+  ],
+  "Animal Diversity": [
+    {
+      question: "Which animal is known as the 'Ship of the Desert'?",
+      image: null,
+      options: [
+        { text: "Camel", isCorrect: true, image: null },
+        { text: "Horse", isCorrect: false, image: null },
+        { text: "Elephant", isCorrect: false, image: null },
+        { text: "Donkey", isCorrect: false, image: null },
+      ]
+    }
+  ],
+  "Cell Biology": [
+    {
+      question: "What is the basic unit of life?",
+      image: null,
+      options: [
+        { text: "Cell", isCorrect: true, image: null },
+        { text: "Tissue", isCorrect: false, image: null },
+        { text: "Organ", isCorrect: false, image: null },
+        { text: "Organ system", isCorrect: false, image: null },
+      ]
+    }
+  ],
+  "Genetics": [
+    {
+      question: "What is the shape of DNA?",
+      image: null,
+      options: [
+        { text: "Double helix", isCorrect: true, image: null },
+        { text: "Single strand", isCorrect: false, image: null },
+        { text: "Triple helix", isCorrect: false, image: null },
+        { text: "Circle", isCorrect: false, image: null },
+      ]
+    }
+  ],
+  "Evolution": [
+    {
+      question: "Who proposed the theory of natural selection?",
+      image: null,
+      options: [
+        { text: "Charles Darwin", isCorrect: true, image: null },
+        { text: "Gregor Mendel", isCorrect: false, image: null },
+        { text: "Lamarck", isCorrect: false, image: null },
+        { text: "Linnaeus", isCorrect: false, image: null },
+      ]
+    }
+  ]
+};
+
+const BOTANY_QUESTIONS = Object.fromEntries(
+  Object.entries(BOTANY_QUESTIONS_RAW).map(([k, v]) => [k, addExplanationsToQuestions(v)])
+);
+const ZOOLOGY_QUESTIONS = Object.fromEntries(
+  Object.entries(ZOOLOGY_QUESTIONS_RAW).map(([k, v]) => [k, addExplanationsToQuestions(v)])
+);
 
 function generateMockQuestions(lessons: string[], subject: string): any[] {
   let questions: any[] = [];
-  let baseQuestions = PHYSICS_QUESTIONS;
+  let baseQuestions: any = PHYSICS_QUESTIONS;
   if (subject === 'Mathematics') baseQuestions = MATH_QUESTIONS;
   if (subject === 'Chemistry') baseQuestions = CHEMISTRY_QUESTIONS;
+  if (subject === 'Botany') baseQuestions = BOTANY_QUESTIONS;
+  if (subject === 'Zoology') baseQuestions = ZOOLOGY_QUESTIONS;
+
   lessons.forEach((lesson) => {
-    for (let i = 1; i <= 10; i++) {
-      const questionIndex = (i - 1) % baseQuestions.length;
-      const baseQuestion = baseQuestions[questionIndex];
+    let lessonQuestions = Array.isArray(baseQuestions)
+      ? baseQuestions
+      : (baseQuestions[lesson] || []);
+    for (let i = 0; i < lessonQuestions.length; i++) {
+      const baseQuestion = lessonQuestions[i];
       questions.push({
-        id: `${lesson}-${i}`,
+        id: `${lesson}-${i + 1}`,
         lesson,
         subject,
         question: `${lesson}: ${baseQuestion.question}`,
@@ -349,6 +527,7 @@ export default function Exam() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selected, setSelected] = useState<{ [key: string]: number[] }>({});
   const [markedRead, setMarkedRead] = useState<{ [key: string]: boolean }>({});
+  const [showFeedback, setShowFeedback] = useState<{ [key: string]: boolean }>({});
 
   // Get current lesson and questions
   let currentLesson = lessonList[currentLessonIndex] || '';
@@ -365,6 +544,8 @@ export default function Exam() {
   }
   const selectedOptions = selected[q?.id] || [];
   const isRead = markedRead[q?.id];
+  const isFeedbackShown = showFeedback[q?.id];
+  const isCorrect = q.options[selectedOptions[0]]?.isCorrect === true;
 
   // Timer effect
   useEffect(() => {
@@ -413,6 +594,7 @@ export default function Exam() {
       const prevSel = prev[q.id] || [];
       return { ...prev, [q.id]: [optionIdx] };
     });
+    setShowFeedback((prev) => ({ ...prev, [q.id]: true }));
   };
 
   const handleAutoNext = () => {
@@ -589,23 +771,71 @@ export default function Exam() {
           </Text>
           <Text style={styles.questionText}>{q.question}</Text>
           <View style={styles.optionsList}>
-            {q.options.map((opt: any, idx: number) => (
-              <TouchableOpacity
-                key={idx}
-                style={[styles.optionBtn, selectedOptions.includes(idx) && styles.optionBtnSelected]}
-                onPress={() => handleSelect(idx)}
-                activeOpacity={0.85}
-              >
-                {opt.image ? (
-                  <View style={styles.optionImageContainer}>
-                    <Image source={{ uri: opt.image }} style={styles.optionImage} resizeMode="contain" />
-                  </View>
-                ) : (
-                  <Text style={[styles.optionText, selectedOptions.includes(idx) && styles.optionTextSelected]}>{opt.text}</Text>
-                )}
-              </TouchableOpacity>
-            ))}
+            {q.options.map((opt: any, idx: number) => {
+              let optionStyle = [styles.optionBtn];
+              let optionTextStyle = [styles.optionText];
+              if (isFeedbackShown) {
+                if (opt.isCorrect) {
+                  optionStyle = [styles.optionBtn, styles.optionBtnCorrect];
+                  optionTextStyle = [styles.optionText, styles.optionTextBold];
+                } else if (selectedOptions.includes(idx)) {
+                  optionStyle = [styles.optionBtn, styles.optionBtnIncorrect];
+                  optionTextStyle = [styles.optionText, styles.optionTextBold];
+                }
+              } else if (selectedOptions.includes(idx)) {
+                optionStyle = [styles.optionBtn, styles.optionBtnSelected];
+                optionTextStyle = [styles.optionText, styles.optionTextSelected];
+              }
+              return (
+                <TouchableOpacity
+                  key={idx}
+                  style={optionStyle}
+                  onPress={() => !isFeedbackShown && handleSelect(idx)}
+                  activeOpacity={0.85}
+                  disabled={isFeedbackShown}
+                >
+                  {opt.image ? (
+                    <View style={styles.optionImageContainer}>
+                      <Image source={{ uri: opt.image }} style={styles.optionImage} resizeMode="contain" />
+                    </View>
+                  ) : (
+                    <Text style={optionTextStyle}>{opt.text}</Text>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
           </View>
+          {/* Debug print for selectedOptions and isCorrect */}
+          {isFeedbackShown && (
+            <Text style={{ color: 'red', marginBottom: 8 }}>
+              selectedOptions: {JSON.stringify(selectedOptions)} | isCorrect: {String(isCorrect)}
+            </Text>
+          )}
+          {isFeedbackShown && !isCorrect && (
+            <View style={{ marginTop: 20 }}>
+              {q.textExplanation && (
+                <View style={{ marginBottom: 16 }}>
+                  <Text style={{ fontWeight: 'bold', marginBottom: 4, color: '#3A7CA5' }}>Explanation</Text>
+                  <Text style={{ color: '#334155', fontSize: 15 }}>{q.textExplanation}</Text>
+                </View>
+              )}
+              <Text style={{ fontWeight: 'bold', marginBottom: 8, color: '#3A7CA5' }}>Video Explanation</Text>
+              {q.showVideo ? (
+                <Video
+                  source={{ uri: q.videoUrl }}
+                  style={{ width: '100%', height: 200, borderRadius: 12, backgroundColor: '#000' }}
+                  controls
+                  resizeMode='contain'
+                />
+              ) : (
+                <Image
+                  source={{ uri: q.imageUrl }}
+                  style={{ width: '100%', height: 200, borderRadius: 12, backgroundColor: '#e5e7eb' }}
+                  resizeMode='contain'
+                />
+              )}
+            </View>
+          )}
           <View style={styles.markReadRow}>
             <TouchableOpacity style={[styles.markReadBtn, isRead && styles.markReadActive]} onPress={handleMarkRead}>
               <CheckCircle size={18} color={isRead ? BRAND_COLORS.green : BRAND_COLORS.gray} />
@@ -959,6 +1189,38 @@ const styles = StyleSheet.create({
   optionBtnSelected: {
     backgroundColor: BRAND_COLORS.accent,
     borderColor: BRAND_COLORS.accent,
+    borderRadius: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    marginBottom: 16,
+    borderWidth: 2,
+    alignItems: 'center',
+    flexDirection: 'row',
+    minHeight: 60,
+  },
+  optionBtnCorrect: {
+    backgroundColor: '#10b981',
+    borderColor: '#10b981',
+    borderRadius: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    marginBottom: 16,
+    borderWidth: 2,
+    alignItems: 'center',
+    flexDirection: 'row',
+    minHeight: 60,
+  },
+  optionBtnIncorrect: {
+    backgroundColor: '#ef4444',
+    borderColor: '#ef4444',
+    borderRadius: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    marginBottom: 16,
+    borderWidth: 2,
+    alignItems: 'center',
+    flexDirection: 'row',
+    minHeight: 60,
   },
   optionText: {
     color: BRAND_COLORS.primary,
@@ -970,6 +1232,16 @@ const styles = StyleSheet.create({
   optionTextSelected: {
     color: '#fff',
     fontFamily: 'Inter-Bold',
+    fontSize: 14,
+    flex: 1,
+    textAlign: 'center',
+  },
+  optionTextBold: {
+    color: '#fff',
+    fontFamily: 'Inter-Bold',
+    fontSize: 14,
+    flex: 1,
+    textAlign: 'center',
   },
   optionImage: {
     width: 80,

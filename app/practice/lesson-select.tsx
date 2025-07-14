@@ -24,6 +24,20 @@ const MOCK_LESSONS: Record<string, { name: string; id: string }[]> = {
     { id: 'trig', name: 'Trigonometry' },
     { id: 'stat', name: 'Statistics' },
   ],
+  Botany: [
+    { id: 'plantphys', name: 'Plant Physiology' },
+    { id: 'genetics', name: 'Genetics' },
+    { id: 'ecology', name: 'Ecology' },
+    { id: 'morphology', name: 'Morphology' },
+    { id: 'anatomy', name: 'Anatomy' },
+  ],
+  Zoology: [
+    { id: 'humanphys', name: 'Human Physiology' },
+    { id: 'animaldiv', name: 'Animal Diversity' },
+    { id: 'cellbio', name: 'Cell Biology' },
+    { id: 'geneticsz', name: 'Genetics' },
+    { id: 'evolution', name: 'Evolution' },
+  ],
 };
 
 export default function LessonSelect() {
@@ -32,9 +46,9 @@ export default function LessonSelect() {
   const lessons = MOCK_LESSONS[subject as string] || [];
   const [selected, setSelected] = useState<string[]>([]);
 
-  const toggleLesson = (id: string) => {
+  const toggleLesson = (name: string) => {
     setSelected((prev) =>
-      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+      prev.includes(name) ? prev.filter((s) => s !== name) : [...prev, name]
     );
   };
 
@@ -65,13 +79,13 @@ export default function LessonSelect() {
             key={lesson.id}
             style={[
               styles.card,
-              selected.includes(lesson.id) && styles.cardSelected,
+              selected.includes(lesson.name) && styles.cardSelected,
             ]}
-            onPress={() => toggleLesson(lesson.id)}
+            onPress={() => toggleLesson(lesson.name)}
             activeOpacity={0.85}
           >
-            <Text style={[styles.lessonName, selected.includes(lesson.id) && styles.lessonNameSelected]}>{lesson.name}</Text>
-            {selected.includes(lesson.id) && (
+            <Text style={[styles.lessonName, selected.includes(lesson.name) && styles.lessonNameSelected]}>{lesson.name}</Text>
+            {selected.includes(lesson.name) && (
               <View style={styles.selectedMark}>
                 <Text style={styles.selectedMarkText}>✓</Text>
               </View>

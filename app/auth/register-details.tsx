@@ -170,8 +170,8 @@ export default function RegisterDetails() {
               <Text style={styles.checkboxLabel}>
                 I agree to the 
                 <Text style={styles.link} onPress={() => router.push('/terms')}>Terms of Use</Text> 
-                and 
-                <Text style={styles.link} onPress={() => router.push('/privacy')}>Privacy Policy</Text>
+                {/* and  */}
+                {/* <Text style={styles.link} onPress={() => router.push('/privacy')}>Privacy Policy</Text> */}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -430,6 +430,7 @@ const styles = StyleSheet.create({
     color: '#F4A261',
     textDecorationLine: 'underline',
     fontFamily: 'Inter-Bold',
+    marginLeft: 2,
   },
   modalOverlay: {
     flex: 1,

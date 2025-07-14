@@ -618,7 +618,7 @@ export default function Home() {
   const stats = [
     { icon: BookOpen, label: 'Tests Taken', value: '45', color: '#667eea', bgColor: '#f0f4ff' },
     { icon: Trophy, label: 'Best score', value: '92%', color: '#ff6b6b', bgColor: '#fff0f0' },
-    { icon: TrendingUp, label: 'Avg Rank', value: '156', color: '#10b981', bgColor: '#f0fdf4' },
+    // { icon: TrendingUp, label: 'Avg Rank', value: '156', color: '#10b981', bgColor: '#f0fdf4' },
     { icon: Clock, label: 'Overall Spent', value: '124hr', color: '#f59e0b', bgColor: '#fffbeb' },
   ];
 
@@ -679,7 +679,7 @@ export default function Home() {
   ];
 
   const handleClick = (action: string) => {
-    if (action === 'practice') router.push('/practice/subject-select');
+    if (action === 'practice') router.push('/practice');
     else if (action === 'doubts') router.push('/help');
     else if (action === 'progress') router.push('/insights');
     else if (action === 'refer') router.push('/refer');
@@ -881,7 +881,7 @@ export default function Home() {
                 <View style={[styles.quickActionModernIconCircle, { backgroundColor: '#F4A261' }]}>
                   <MessageCircle size={28} color="#fff" />
                 </View>
-                <Text style={styles.quickActionModernText}>Doubts</Text>
+                <Text style={styles.quickActionModernText}>Help</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.quickActionModernCard, { backgroundColor: '#e0f2fe' }]} activeOpacity={0.88} onPress={() => handleClick('progress')}>
                 <View style={[styles.quickActionModernIconCircle, { backgroundColor: '#3A7CA5' }]}> 
